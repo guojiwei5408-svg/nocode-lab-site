@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>灵感停车场 · 不会代码研究所</title>
+  <meta name="description" content="好想法先停车，不插队施工。第一版只保存在你的浏览器本地。" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav__brand" href="index.html">🧪 不会代码研究所</a>
+      <ul class="nav__links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="works.html">作品</a></li>
+        <li><a href="about.html">关于</a></li>
+        <li><a href="inspiration.html" class="is-active">灵感停车场</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="wrap">
+
+    <section class="hero">
+      <span class="hero__badge">脑洞记录本</span>
+      <h1 class="hero__title">💡 灵感停车场</h1>
+      <p class="hero__subtitle">
+        好想法先停车，不插队施工。
+      </p>
+    </section>
+
+    <!-- 输入区 -->
+    <section class="card">
+      <h2 class="card__title">✍️ 停一个脑洞</h2>
+      <textarea
+        id="ideaInput"
+        class="parking-input"
+        placeholder="例如：用 AI 做一个帮我决定周末去哪玩的小工具……"></textarea>
+
+      <div class="parking-toolbar">
+        <button id="ideaSaveBtn" type="button" class="btn">🅿️ 停进停车场</button>
+        <button id="ideaClearBtn" type="button" class="btn btn--ghost">🗑 清空全部</button>
+      </div>
+
+      <div class="notice">
+        ⚠️ 第一版只保存在你的浏览器本地（localStorage），研究所看不到。
+        真正的投稿功能后面再做。换个浏览器或清理缓存，记录会消失哦。
+      </div>
+    </section>
+
+    <!-- 已保存列表 -->
+    <section>
+      <h2 class="card__title">🅿️ 停车场里的脑洞</h2>
+      <ul id="ideaList" class="idea-list"></ul>
+      <div id="ideaEmpty" class="empty-tip">
+        现在停车场空空的，写下第一个脑洞吧～
+      </div>
+    </section>
+
+    <section style="text-align:center;">
+      <a class="btn btn--ghost" href="works.html">← 回作品列表看看</a>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="creed-mini">好想法先停车，不插队施工。</p>
+    <p>© 2026 不会代码研究所</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

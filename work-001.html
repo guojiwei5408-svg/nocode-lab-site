@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>001 所长决定器 · 不会代码研究所</title>
+  <meta name="description" content="研究任务抽签器，让所长决定器帮你抽一个 AI 小实验。" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 顶部导航 -->
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav__brand" href="index.html">🧪 不会代码研究所</a>
+      <ul class="nav__links">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="works.html" class="is-active">作品</a></li>
+        <li><a href="about.html">关于</a></li>
+        <li><a href="inspiration.html">灵感停车场</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="wrap">
+
+    <!-- 作品头部 -->
+    <section class="hero">
+      <span class="work-no-badge">001</span>
+      <h1 class="hero__title" style="margin-top:14px;">所长决定器</h1>
+      <p class="hero__subtitle">
+        不知道今天研究什么？让所长决定器帮你抽一个 AI 小实验。
+      </p>
+      <p style="color:var(--ink-soft);font-size:0.9rem;margin-top:6px;">
+        它是一个「研究任务抽签器」，不是普通的选择困难症工具。
+      </p>
+    </section>
+
+    <!-- 立即体验区域 -->
+    <section class="card decider">
+      <h2 class="card__title">🎯 立即体验</h2>
+      <div id="deciderResult" class="decider__result">
+        点下面的按钮，所长帮你抽今天的研究任务 👇
+      </div>
+      <button id="decideBtn" type="button" class="btn btn--lg">🎲 所长，今天研究什么？</button>
+      <p class="decider__hint">抽到不喜欢？再点一次就好，研究所不强迫。</p>
+    </section>
+
+    <!-- 所长研究日志 -->
+    <section class="card">
+      <h2 class="card__title">📓 所长研究日志</h2>
+      <ul class="log-list">
+        <li><strong>Day 1 ·</strong> 决定先做个最简单的抽签器，把「开始」这件事变得没有门槛。</li>
+        <li><strong>Day 2 ·</strong> 纠结要不要接真 AI 实时生成，最后忍住了——第一版先用固定任务库。</li>
+        <li><strong>Day 3 ·</strong> 把任务凑到 30+ 条，发现「想点子」比「写代码」还累。</li>
+        <li><strong>Day 4 ·</strong> 加了个防止连续重复的小逻辑，体验立刻顺了。先开门，再装修。</li>
+      </ul>
+    </section>
+
+    <!-- 简化版 Prompt / 制作思路 -->
+    <section class="card">
+      <h2 class="card__title">🧩 简化版 Prompt / 制作思路</h2>
+      <p style="color:var(--ink-soft);margin-bottom:12px;">
+        所长不会写代码，是这样跟 AI 描述需求的（你也可以照着改）：
+      </p>
+      <div class="prompt-box">帮我做一个纯 HTML/CSS/JS 的网页小工具，叫「所长决定器」。
+需求：
+1. 准备一个数组，里面是 30 多条「用 AI 做某某小东西」的研究任务。
+2. 页面中间一个大按钮：🎲 所长，今天研究什么？
+3. 点击按钮后，从数组里随机抽一条显示出来。
+4. 连续点击不要抽到和上一次一样的。
+5. 风格轻松、米白背景、暖橙按钮，要适配手机。
+不要登录、不要数据库、不要后端，能本地双击打开就行。</div>
+    </section>
+
+    <!-- 第一版不做 -->
+    <section class="card">
+      <h2 class="card__title">🚧 第一版先不做</h2>
+      <ul class="no-list">
+        <li>登录</li>
+        <li>排行榜</li>
+        <li>数据库</li>
+        <li>AI 实时生成</li>
+        <li>投稿系统</li>
+        <li>商业化入口</li>
+      </ul>
+      <p style="color:var(--ink-soft);font-size:0.9rem;margin-top:10px;">
+        这些不是不做，是「先开门，再装修」。
+      </p>
+    </section>
+
+    <!-- 返回 -->
+    <section style="text-align:center;">
+      <a class="btn btn--ghost" href="works.html">← 返回作品列表</a>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="creed-mini">先开门，再装修。</p>
+    <p>© 2026 不会代码研究所</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
