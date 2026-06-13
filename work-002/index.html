@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>文字人生模拟器 · 不会代码研究所</title>
+<link rel="stylesheet" href="../style.css">
 <style>
   :root{
     --paper:#f4f1ea; --paper2:#ebe6db; --ink:#23211d; --ink2:#5b564c;
@@ -113,13 +114,36 @@
   .foot{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
   .credit{text-align:center;font-size:12px;color:var(--ink2);margin-top:30px;letter-spacing:.05em;}
   .credit b{color:var(--stamp);}
+  .back-link{
+    display:inline-block;
+    margin:0 0 14px;
+    color:var(--ink2);
+    text-decoration:none;
+    font-size:14px;
+  }
+  .back-link:hover{color:var(--accent);}
   @media(max-width:540px){
     h1.title{font-size:25px;} .endname{font-size:23px;} .row .k{flex-basis:64px;}
   }
 </style>
 </head>
 <body>
+<!-- 顶部导航 -->
+<header class="site-header">
+  <nav class="nav">
+    <a class="nav__brand" href="../index.html">🧪 不会代码研究所</a>
+    <ul class="nav__links">
+      <li><a href="../index.html">首页</a></li>
+      <li><a href="../works.html" class="is-active">作品</a></li>
+      <li><a href="../about.html">关于</a></li>
+      <li><a href="../inspiration.html">灵感停车场</a></li>
+    </ul>
+  </nav>
+</header>
+
 <div class="wrap">
+  <a class="back-link" href="../works.html">← 返回作品列表</a>
+
   <div class="topbar">
     <span class="lab mono">不会代码研究所</span>
     <span class="no mono">002 号作品</span>
