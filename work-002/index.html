@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>文字人生模拟器 · 不会代码研究所</title>
+<style>
+  :root{
+    --paper:#f4f1ea; --paper2:#ebe6db; --ink:#23211d; --ink2:#5b564c;
+    --line:#ccc4b4; --stamp:#b1432c; --accent:#2f6e5b; --gold:#9a7b2e;
+    --card:#fbf9f4; --fate:#b1432c; --fateBg:#fbeae4;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:28px 22px 64px;}
+  .mono{font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;letter-spacing:.04em;}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1.5px solid var(--ink);padding-bottom:10px;margin-bottom:8px;}
+  .topbar .lab{font-size:13px;letter-spacing:.16em;color:var(--ink2);}
+  .topbar .no{font-size:12px;color:var(--stamp);border:1px solid var(--stamp);
+    border-radius:3px;padding:2px 7px;letter-spacing:.1em;}
+  .subhead{font-size:12px;color:var(--ink2);margin:0 0 22px;letter-spacing:.04em;}
+
+  .progress{display:flex;gap:6px;margin:0 0 22px;}
+  .progress .seg{flex:1;height:4px;background:var(--line);border-radius:2px;}
+  .progress .seg.on{background:var(--accent);}
+
+  .screen{display:none;animation:fade .45s ease;}
+  .screen.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  h1.title{font-size:30px;margin:14px 0 6px;letter-spacing:.02em;}
+  .lead{font-size:15px;color:var(--ink2);margin:0 0 22px;}
+
+  .stamp{display:inline-block;border:2px solid var(--stamp);color:var(--stamp);
+    transform:rotate(-5deg);padding:4px 12px;border-radius:5px;font-size:13px;
+    letter-spacing:.18em;margin-bottom:14px;font-weight:700;}
+
+  /* 插画图位（缺图自动折叠） */
+  figure.illu{margin:0 0 18px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;
+    background:linear-gradient(160deg,var(--paper2),#e3dccb);}
+  figure.illu img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;}
+  figure.illu.cover img{aspect-ratio:16/9;}
+
+  .qhint{font-size:12px;color:var(--gold);letter-spacing:.14em;margin-bottom:6px;}
+  .qtitle{font-size:19px;font-weight:700;margin:0 0 4px;}
+  .qdesc{font-size:14.5px;color:var(--ink2);margin:0 0 18px;}
+  .opts{display:flex;flex-direction:column;gap:11px;}
+  .opt{text-align:left;width:100%;background:var(--card);border:1.5px solid var(--line);
+    border-radius:10px;padding:14px 16px;font-size:15.5px;color:var(--ink);
+    cursor:pointer;transition:.16s;font-family:inherit;line-height:1.55;}
+  .opt:hover{border-color:var(--accent);background:#fff;transform:translateY(-1px);
+    box-shadow:0 4px 14px rgba(47,110,91,.10);}
+  .opt:active{transform:translateY(0);}
+  .opt b{color:var(--accent);}
+
+  .pickgrid{display:flex;flex-wrap:wrap;gap:9px;}
+  .chip{background:var(--card);border:1.5px solid var(--line);border-radius:8px;
+    padding:11px 15px;font-size:15px;cursor:pointer;transition:.15s;font-family:inherit;color:var(--ink);}
+  .chip:hover{border-color:var(--accent);background:#fff;}
+  .chip.sel{border-color:var(--accent);background:var(--accent);color:#fff;}
+  .setup-block{margin-bottom:22px;}
+  .setup-block .lbl{font-size:13px;color:var(--ink2);letter-spacing:.1em;margin-bottom:9px;}
+
+  .storybox{background:#fffdf7;border-left:4px solid var(--gold);
+    padding:16px 18px;border-radius:0 8px 8px 0;margin:6px 0 0;font-size:16px;line-height:1.8;}
+  .agehead{font-size:13px;letter-spacing:.2em;color:var(--stamp);margin:26px 0 2px;}
+  .agehint{font-size:14px;color:var(--ink2);font-style:italic;margin:0 0 16px;}
+
+  /* 意外卡 */
+  .fatewrap{border:1.5px solid var(--fate);border-radius:12px;background:var(--fateBg);
+    padding:16px 18px;margin-top:6px;}
+  .fatehead{font-size:13px;letter-spacing:.22em;color:var(--fate);font-weight:700;margin-bottom:8px;}
+  .fatebody{font-size:16px;line-height:1.8;}
+
+  .btn{display:inline-block;margin-top:20px;background:var(--ink);color:var(--paper);
+    border:none;border-radius:8px;padding:12px 26px;font-size:15px;cursor:pointer;
+    font-family:inherit;letter-spacing:.06em;transition:.15s;}
+  .btn:hover{background:var(--accent);}
+  .btn.ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--line);}
+  .btn.ghost:hover{color:var(--ink);border-color:var(--ink);background:transparent;}
+  .btn[disabled]{opacity:.35;cursor:not-allowed;}
+
+  .card{background:linear-gradient(170deg,#fffdf8,#f3ecdd);
+    border:1.5px solid var(--ink);border-radius:14px;padding:0;overflow:hidden;
+    box-shadow:0 12px 40px rgba(35,33,29,.16);margin-top:6px;}
+  .card figure.illu{margin:0;border:none;border-bottom:1.5px solid var(--ink);border-radius:0;}
+  .card .ch{background:var(--ink);color:var(--paper);padding:16px 22px;
+    display:flex;justify-content:space-between;align-items:center;}
+  .card .ch .t{font-size:13px;letter-spacing:.18em;opacity:.85;}
+  .card .ch .seal{font-size:12px;border:1px solid var(--paper);border-radius:3px;padding:2px 8px;letter-spacing:.12em;}
+  .card .body{padding:22px 24px 26px;}
+  .endname{font-size:27px;font-weight:800;letter-spacing:.02em;margin:2px 0 4px;}
+  .endsub{font-size:14px;color:var(--ink2);margin:0 0 20px;}
+  .row{display:flex;gap:10px;margin-bottom:16px;border-bottom:1px dashed var(--line);padding-bottom:14px;}
+  .row:last-of-type{border-bottom:none;}
+  .row .k{flex:0 0 76px;font-size:13px;color:var(--gold);letter-spacing:.08em;padding-top:2px;}
+  .row .v{flex:1;font-size:15px;line-height:1.75;}
+  .v ul{margin:0;padding-left:18px;} .v li{margin-bottom:3px;}
+  .tags{display:flex;flex-wrap:wrap;gap:8px;}
+  .tag{font-size:13px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:4px 12px;}
+  .tag i{font-style:normal;color:var(--ink2);margin-right:5px;}
+  .comment{background:#fff;border:1px solid var(--line);border-radius:10px;
+    padding:15px 17px;font-size:15px;line-height:1.85;margin-top:4px;}
+  .comment .by{display:block;font-size:12px;color:var(--stamp);letter-spacing:.14em;margin-bottom:7px;}
+  .quote{text-align:center;font-size:17px;font-weight:700;color:var(--accent);margin:22px 4px 4px;line-height:1.6;}
+  .foot{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px;}
+  .credit{text-align:center;font-size:12px;color:var(--ink2);margin-top:30px;letter-spacing:.05em;}
+  .credit b{color:var(--stamp);}
+  @media(max-width:540px){
+    h1.title{font-size:25px;} .endname{font-size:23px;} .row .k{flex-basis:64px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="lab mono">不会代码研究所</span>
+    <span class="no mono">002 号作品</span>
+  </div>
+  <p class="subhead mono">人生模拟实验 · LIFE SIMULATOR v2</p>
+
+  <div class="progress" id="progress" style="display:none;"></div>
+
+  <!-- 开场 -->
+  <section class="screen active" id="sc-start">
+    <span class="stamp mono">研究所出品</span>
+    <h1 class="title">文字人生模拟器</h1>
+    <figure class="illu cover"><img src="images/cover.png" alt="" onerror="this.closest('figure').style.display='none'"></figure>
+    <p class="lead">选一个年代、一种家境、一副性格，走一段会被你自己的选择改变的人生。<br>有岔路，也有天降的意外；有人陪你走，也有人中途下车。<br>没有标准答案，只有"如果当初换个选择呢"。</p>
+    <div class="storybox" style="border-color:var(--accent);">
+      一局二十分钟左右，每次都不一样：升学、工作、恋爱、结婚、生娃、买房、暴富、翻车、生老病死……<br>
+      结尾给你一张「人生结算卡」——你这辈子过得怎么样，所长亲自盖章点评。
+    </div>
+    <button class="btn" onclick="Game.toSetup()">开始我的人生 →</button>
+  </section>
+
+  <!-- 开局三选 -->
+  <section class="screen" id="sc-setup">
+    <p class="qhint mono">出生设定 · 三个选择</p>
+    <h1 class="title" style="font-size:22px;margin-top:6px;">先决定你投胎到哪</h1>
+    <div class="setup-block">
+      <div class="lbl mono">① 出生年代</div>
+      <div class="pickgrid" id="pick-era"></div>
+    </div>
+    <div class="setup-block">
+      <div class="lbl mono">② 家庭背景</div>
+      <div class="pickgrid" id="pick-family"></div>
+    </div>
+    <div class="setup-block">
+      <div class="lbl mono">③ 性格倾向</div>
+      <div class="pickgrid" id="pick-trait"></div>
+    </div>
+    <button class="btn" id="startBtn" disabled onclick="Game.begin()">这就是我了，开始 →</button>
+  </section>
+
+  <!-- 阶段事件 -->
+  <section class="screen" id="sc-stage">
+    <figure class="illu" id="stageIllu"><img id="stageImg" src="" alt="" onerror="this.closest('figure').style.display='none'"></figure>
+    <div class="agehead mono" id="ageHead"></div>
+    <div class="agehint" id="ageHint"></div>
+    <div id="eventArea"></div>
+  </section>
+
+  <!-- 结算卡 -->
+  <section class="screen" id="sc-ending">
+    <div id="cardArea"></div>
+    <div class="foot">
+      <button class="btn" onclick="Game.restart()">↻ 再活一次（换个开局）</button>
+      <button class="btn ghost" onclick="Game.sameAgain()">同样的设定再走一遍</button>
+    </div>
+    <p class="credit">— 不会代码研究所 · <b>002</b> 号作品 · 一个普通人用 AI 做的人生模拟器 —</p>
+  </section>
+</div>
+
+<script>
+/* ============================================================
+   文字人生模拟器 v2  ·  数据驱动引擎
+   设计依据：002作品设计_v1_定稿.md + 用户v2反馈(加意外/娶妻生子/去鸡汤/加长/配插画)
+   引擎简单：选择 → 一句剧情 → 后台改数值 → 通向结局
+   新增：意外随机事件系统(FATE) / 娶妻生子支线(靠flag串) / 插画图位(缺图优雅折叠)
+   丰富度全靠内容库(EVENTS / FATE / ENDINGS)写厚，可持续扩充
+   ============================================================ */
+
+const ERAS = [
+  {id:'80',label:'80 年代',note:'粮票、单位、下海的前夜'},
+  {id:'90',label:'90 年代',note:'下岗潮、第一批网吧'},
+  {id:'00',label:'00 年代',note:'扩招、智能机、北上广'},
+  {id:'10',label:'10 年代',note:'短视频、内卷、考公热'},
+];
+const FAMILIES = [
+  {id:'rural', label:'农村家庭', fx:{m:25,h:62,r:56,l:44}, flags:['rural'],   note:'起点低，但皮实'},
+  {id:'town',  label:'小城家庭', fx:{m:40,h:58,r:56,l:48}, flags:['town'],    note:'够吃够穿，没余粮'},
+  {id:'work',  label:'普通工薪', fx:{m:50,h:55,r:56,l:50}, flags:['worker'],  note:'最普通的那种'},
+  {id:'mid',   label:'城市中产', fx:{m:66,h:55,r:54,l:55}, flags:['mid'],     note:'有点底子'},
+  {id:'rich',  label:'家里有资源',fx:{m:82,h:55,r:50,l:66}, flags:['rich'],    note:'起跑线靠前'},
+];
+const TRAITS = [
+  {id:'steady', label:'稳健型', fx:{h:5,l:3},  flags:['steady'], note:'求稳，不爱冒险'},
+  {id:'risk',   label:'冒险型', fx:{l:6,h:-2}, flags:['risk'],   note:'敢赌，愿意搏'},
+  {id:'study',  label:'学习型', fx:{l:2},      flags:['study'],  note:'爱琢磨，肯学'},
+  {id:'social', label:'社交型', fx:{r:9},      flags:['social'], note:'人缘好，路子广'},
+  {id:'slack',  label:'摆烂型', fx:{h:3,m:-5}, flags:['slack'],  note:'佛系，不强求'},
+];
+
+/* 阶段（pick=该阶段抽几个带剧情的关键选择；img=阶段插画文件名） */
+const STAGES = [
+  {key:'s18', age:'18 岁 · 第一个岔路口',     pick:3, img:'stage_18.png'},
+  {key:'s22', age:'22 岁 · 走出校门',         pick:3, img:'stage_22.png'},
+  {key:'s30', age:'30 岁 · 成家立业的年纪',   pick:3, img:'stage_30.png'},
+  {key:'s40', age:'40 岁 · 上有老下有小',     pick:3, img:'stage_40.png'},
+  {key:'s50', age:'50 岁以后 · 回头看',       pick:3, img:'stage_50.png'},
+];
+
+function has(S,f){return S.flags.has(f);}
+function any(S,arr){return arr.some(f=>S.flags.has(f));}
+
+/* EVENTS / FATE / ENDINGS 由下方独立脚本注入 window.* */
+
+const Game = (()=>{
+  let S = null;
+  const sel = {era:null,family:null,trait:null};
+
+  function renderSetup(){
+    const mk=(arr,box,key)=>{
+      const el=document.getElementById(box); el.innerHTML='';
+      arr.forEach(o=>{
+        const b=document.createElement('button');
+        b.className='chip'; b.innerHTML=o.label+'<span style="opacity:.6;font-size:12px;"> · '+o.note+'</span>';
+        b.onclick=()=>{ sel[key]=o;
+          [...el.children].forEach(c=>c.classList.remove('sel')); b.classList.add('sel');
+          document.getElementById('startBtn').disabled=!(sel.era&&sel.family&&sel.trait);
+        };
+        el.appendChild(b);
+      });
+    };
+    mk(ERAS,'pick-era','era'); mk(FAMILIES,'pick-family','family'); mk(TRAITS,'pick-trait','trait');
+  }
+  function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'});}
+  function toSetup(){renderSetup(); show('sc-setup');}
+
+  function begin(){
+    S={ era:sel.era.id, family:sel.family.id, trait:sel.trait.id,
+      eraLabel:sel.era.label, familyLabel:sel.family.label, traitLabel:sel.trait.label,
+      stats:{m:50,h:50,r:50,l:50}, flags:new Set(), log:[], used:new Set(), usedFate:new Set(),
+      stageIdx:0, queue:[], prevStats:null, fateStage:-1 };
+    const ff=sel.family.fx; for(const k of ['m','h','r','l']){ if(ff[k]!=null) S.stats[k]=clamp(ff[k]); }
+    (sel.family.flags||[]).forEach(f=>S.flags.add(f));
+    apply(sel.trait.fx); (sel.trait.flags||[]).forEach(f=>S.flags.add(f));
+    S.flags.add('era'+S.era);
+    document.getElementById('progress').style.display='flex';
+    startStage();
+  }
+  function apply(fx){if(!fx)return; for(const k of ['m','h','r','l']){ if(fx[k]) S.stats[k]=clamp(S.stats[k]+fx[k]); }}
+  function clamp(v){return Math.max(0,Math.min(100,v));}
+
+  function renderProgress(){
+    const p=document.getElementById('progress'); p.innerHTML='';
+    STAGES.forEach((_,i)=>{const d=document.createElement('div'); d.className='seg'+(i<=S.stageIdx?' on':''); p.appendChild(d);});
+  }
+
+  function setStageImg(file){
+    const fig=document.getElementById('stageIllu'); const img=document.getElementById('stageImg');
+    fig.style.display=''; img.src = file? 'images/'+file : '';
+    if(!file) fig.style.display='none';
+  }
+
+  function startStage(){
+    renderProgress();
+    const st=STAGES[S.stageIdx]; S.prevStats={...S.stats};
+    const pool=window.EVENTS.filter(e=>e.stage===st.key && !S.used.has(e.id) && (!e.cond||e.cond(S)));
+    shuffle(pool);
+    // 尽量满足 pick 数；优先保证“支线必触发”事件（pri）
+    pool.sort((a,b)=>(b.pri?1:0)-(a.pri?1:0));
+    S.queue=pool.slice(0, Math.min(st.pick, pool.length));
+    S.queue.forEach(e=>S.used.add(e.id));
+    setStageImg(st.img);
+    document.getElementById('ageHead').textContent=st.age;
+    document.getElementById('ageHint').textContent = S.stageIdx===0 ? hintFor0() : transitionHint();
+    show('sc-stage');
+    nextEvent();
+  }
+
+  function hintFor0(){
+    const m={'80':'那是个一切刚刚松动的年代。','90':'空气里有股下海和下岗混在一起的味道。',
+      '00':'大学开始扩招，外面的世界看起来很大。','10':'手机里装着整个世界，也装着整个内卷。'};
+    return m[S.era]+'你是'+S.familyLabel+'的孩子，'+S.traitLabel.replace('型','')+'的性子。';
+  }
+  function transitionHint(){
+    const d={}; for(const k of ['m','h','r','l']) d[k]=S.stats[k]-S.prevStats[k];
+    const lines=[];
+    if(d.m>=14)lines.push('口袋鼓了不少');else if(d.m<=-14)lines.push('钱包瘦了一圈');
+    if(d.h<=-14)lines.push('身体悄悄欠下了账');else if(d.h>=12)lines.push('气色还不错');
+    if(d.r>=12)lines.push('身边多了些靠得住的人');else if(d.r<=-14)lines.push('和一些人慢慢断了联系');
+    if(d.l>=12)lines.push('运气像是站在你这边');
+    if(!lines.length)return '日子不咸不淡地往前走。';
+    return '这几年，'+lines.slice(0,2).join('，')+'。';
+  }
+
+  /* 意外触发：22岁起每个阶段结束后约 72% 概率天降一桩意外 */
+  function shouldFate(){
+    if(S.stageIdx<1) return false;
+    if(S.fateStage===S.stageIdx) return false;
+    if(Math.random()>0.82) return false;
+    return fatePool().length>0;
+  }
+  function fatePool(){ return window.FATE.filter(f=>!S.usedFate.has(f.id) && (!f.cond||f.cond(S))); }
+
+  function showFate(){
+    S.fateStage=S.stageIdx;
+    const pool=fatePool(); shuffle(pool);
+    const f=pool[0]; S.usedFate.add(f.id);
+    const area=document.getElementById('eventArea');
+    area.innerHTML='<div class="fatewrap"><div class="fatehead mono">⚡ 人生意外 · '+(f.kind||'天有不测')+'</div>'+
+      '<div class="fatebody">'+f.text+'</div></div><div class="opts" id="optWrap" style="margin-top:14px;"></div>';
+    const wrap=document.getElementById('optWrap');
+    const opts=(f.opts&&f.opts.length?f.opts:[{t:'……接受命运',s:f.after||'日子还得过下去。',fx:{}}]).filter(o=>!o.cond||o.cond(S));
+    opts.forEach(o=>{const b=document.createElement('button'); b.className='opt'; b.innerHTML=o.t; b.onclick=()=>choose(o,true); wrap.appendChild(b);});
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function nextEvent(){
+    if(!S.queue.length){
+      if(shouldFate()) return showFate();
+      S.stageIdx++;
+      if(S.stageIdx>=STAGES.length){ return ending(); }
+      return startStage();
+    }
+    renderEvent(S.queue.shift());
+  }
+
+  function renderEvent(e){
+    const area=document.getElementById('eventArea');
+    const opts=e.opts.filter(o=>!o.cond||o.cond(S));
+    area.innerHTML='<p class="qhint mono">'+(e.tag||'人生关键选择')+'</p>'+
+      '<p class="qtitle">'+e.title+'</p>'+(e.desc?'<p class="qdesc">'+e.desc+'</p>':'')+
+      '<div class="opts" id="optWrap"></div>';
+    const wrap=document.getElementById('optWrap');
+    opts.forEach(o=>{const b=document.createElement('button'); b.className='opt'; b.innerHTML=o.t; b.onclick=()=>choose(o); wrap.appendChild(b);});
+  }
+
+  function choose(o,fromFate){
+    const fx=typeof o.fx==='function'?o.fx(S):o.fx; apply(fx);
+    (o.fl||[]).forEach(f=>S.flags.add(f));
+    if(o.mark) S.log.push(o.mark);
+    const area=document.getElementById('eventArea');
+    area.innerHTML='<div class="storybox">'+o.s+'</div><button class="btn" id="contBtn">继续 →</button>';
+    document.getElementById('contBtn').onclick=nextEvent;
+    window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+  }
+
+  function ending(){
+    renderProgress();
+    let best=null,bestScore=-1e9;
+    window.ENDINGS.forEach(en=>{const sc=en.match(S); if(sc>bestScore){bestScore=sc;best=en;}});
+    const c=best.card(S); const st=S.stats;
+    const tagWord=(k,v)=>{const map={
+        m:[[30,'拮据'],[55,'普通'],[75,'小康'],[101,'富足']],
+        h:[[30,'透支'],[55,'一般'],[75,'还行'],[101,'硬朗']],
+        r:[[30,'孤单'],[55,'平淡'],[75,'温暖'],[101,'满堂']],
+        l:[[30,'有点背'],[55,'一般'],[75,'还算顺'],[101,'福星']]};
+      for(const [t,w] of map[k]) if(v<t) return w; return '';};
+    const marks=S.log.slice(-5).map(m=>'<li>'+m+'</li>').join('') || '<li>一段普普通通、却只属于你的人生。</li>';
+    const endImg = best.img? '<figure class="illu"><img src="images/'+best.img+'" alt="" onerror="this.closest(\'figure\').style.display=\'none\'"></figure>':'';
+    document.getElementById('cardArea').innerHTML=
+      '<div class="card">'+endImg+
+        '<div class="ch"><span class="t mono">人 生 结 算 卡</span><span class="seal mono">所长签发</span></div>'+
+        '<div class="body">'+
+          '<div class="endsub mono">'+S.eraLabel+' · '+S.familyLabel+' · '+S.traitLabel+'</div>'+
+          '<div class="endname">'+best.name+'</div>'+
+          '<div class="endsub">'+c.sub+'</div>'+
+          '<div class="row"><div class="k mono">关键节点</div><div class="v"><ul>'+marks+'</ul></div></div>'+
+          '<div class="row"><div class="k mono">成就</div><div class="v">'+c.win+'</div></div>'+
+          '<div class="row"><div class="k mono">遗憾</div><div class="v">'+c.regret+'</div></div>'+
+          '<div class="row"><div class="k mono">最终状态</div><div class="v"><div class="tags">'+
+            '<span class="tag"><i>财富</i>'+tagWord('m',st.m)+'</span>'+
+            '<span class="tag"><i>健康</i>'+tagWord('h',st.h)+'</span>'+
+            '<span class="tag"><i>关系</i>'+tagWord('r',st.r)+'</span>'+
+            '<span class="tag"><i>运气</i>'+tagWord('l',st.l)+'</span>'+
+          '</div></div></div>'+
+          '<div class="row" style="border-bottom:none;"><div class="k mono">所长点评</div><div class="v">'+
+            '<div class="comment"><span class="by mono">— 所长批注 —</span>'+c.comment+'</div></div></div>'+
+          '<div class="quote">「'+c.quote+'」</div>'+
+        '</div></div>';
+    show('sc-ending');
+  }
+
+  function restart(){sel.era=sel.family=sel.trait=null;
+    document.getElementById('progress').style.display='none';show('sc-start');}
+  function sameAgain(){ begin(); }
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+
+  return {toSetup,begin,restart,sameAgain};
+})();
+</script>
+
+<!-- ============ 内容库：事件 EVENTS ============ -->
+<script>
+/* 事件结构 {id,stage,tag?,pri?,cond?(S),title,desc?,opts:[{t,s,fx:{m,h,r,l},fl:[],mark,cond?}]}
+   stage: s18/s22/s30/s40/s50 ；pri:true=支线锚点,优先抽到（娶妻生子主线）
+   文案调性：接地气 + 黑色幽默 + 反转，不灌鸡汤 */
+window.EVENTS = [
+
+/* ===================== 18 岁 ===================== */
+{id:'e18_road', stage:'s18', tag:'18 岁 · 分数出来了', pri:true,
+ title:'成绩卡到不上不下。家里那点钱，够你读个普通本科，也够你学门手艺，二选一。',
+ opts:[
+  {t:'<b>读大学</b>——再差也是张文凭', s:'六人间，上铺打呼像拖拉机。四年后你才懂：这文凭最大的用处是入职复印了一份，再没拿出来过——可没它，连复印的资格都没有。', fx:{m:-8,l:4}, fl:['col'], mark:'18 岁，去读了大学'},
+  {t:'<b>上技校学手艺</b>——早点能挣钱', s:'车间一股机油味，同学笑你没出息。三年后他们在投简历，你已经能凭一手活儿挑老板了。', fx:{m:-2,h:-3}, fl:['voc'], mark:'18 岁，学了门手艺傍身'},
+  {t:'<b>直接出去打工</b>——不想再花家里钱', s:'第一份活是流水线，手三天磨出茧。发工资那天你给家里打了五百，剩下的钱攥在手里，烫。', fx:{m:5,h:-6,r:-2}, fl:['earlywork'], mark:'18 岁，没念书就进了厂'},
+ ]},
+
+{id:'e18_love', stage:'s18', tag:'18 岁 · 心动',
+ title:'你喜欢上了同班一个人。对方好像也没躲你，但你俩都笨得要命。',
+ opts:[
+  {t:'写张纸条递过去', s:'你憋了三晚写的情书，对方看完红着脸说"我们……先高考吧"。多年后你俩在同学群里，谁也没再提这事。', fx:{r:7,l:3}, mark:'18 岁，认真喜欢过一个人'},
+  {t:'算了，怂了', s:'你把纸条叠成小方块塞进笔袋，一直没递。后来笔袋丢了，那点心动也跟着丢了，连带丢的还有点别的。', fx:{r:-3,l:-1}},
+ ]},
+
+{id:'e18_night', stage:'s18', cond:(S)=>has(S,'col')||has(S,'town'),
+ tag:'18 岁 · 网吧的夜',
+ title:'室友拽你通宵，"年轻不浪等啥？"',
+ opts:[
+  {t:'走！五杀今晚是我的', s:'凌晨四点你打出一波超神，爽得起鸡皮疙瘩。第二天专业课点名，你的名字喊了三遍没人应——你在网吧椅子上睡死了。', fx:{h:-5,r:6,m:-2}, fl:['social'], mark:'有过一个翘课通宵的夜'},
+  {t:'不去，我回去睡', s:'你回宿舍睡了个好觉。室友说你像个老干部，可那门课你考了第一，还顺走了奖学金两千块。', fx:{h:3,l:2,m:3}, fl:['steady']},
+ ]},
+
+{id:'e18_money', stage:'s18', tag:'18 岁 · 第一笔钱',
+ title:'有人喊你课余倒腾点小买卖：代购、摆摊、卖点小玩意。',
+ opts:[
+  {t:'练摊去，反正不亏', s:'第一晚净赚三十七块,顶半天工。钱不多,但"自己挣的"这四个字,比奶茶上头。', fx:{m:6,l:3}, fl:['second'], mark:'很早就尝过自己挣钱的甜头'},
+  {t:'不务正业，专心读书/干活', s:'你拒绝了。当年那帮练摊的里头,有个后来真开成了连锁店。你偶尔刷到他朋友圈,默默点了个赞。', fx:{l:-2}, fl:['steady']},
+ ]},
+
+{id:'e18_health', stage:'s18',
+ title:'这一年你长期熬夜,开始掉头发、胃疼。',
+ opts:[
+  {t:'当回事，调作息', s:'你开始早睡晨跑,被笑"养生没必要"。但身体这台机器的底子,就是这几年悄悄攒下的。', fx:{h:10,l:2}, fl:['steady'], mark:'年轻时就懂得攒身体'},
+  {t:'年轻嘛，扛一扛', s:'你一晚两罐红牛续命。身体没塌,只是把账记下了,利滚利,二十年后一次性找你结。', fx:{h:-8,m:2}, fl:['sick']},
+ ]},
+
+{id:'e18_rich', stage:'s18', cond:(S)=>has(S,'rich')||has(S,'mid'),
+ tag:'18 岁 · 家里的安排',
+ title:'家里托关系，铺好一条稳路：读对口专业,毕业进熟人单位。',
+ opts:[
+  {t:'听家里的，省心', s:'你顺着这条路滑下去,确实省力。多年后你才察觉,顺风顺水的代价,是你一直没机会知道自己到底行不行。', fx:{m:6,l:5}, fl:['steady','arranged'], mark:'走了家里铺好的稳路'},
+  {t:'我想自己闯', s:'你婉拒了,爸妈一晚上没说话。心里有点虚又有点爽——这是头一回,路是你自己挑的,摔了也认。', fx:{l:-2,r:-3,h:-2}, fl:['risk'], mark:'18 岁就不肯接家里的安排'},
+ ]},
+
+{id:'e18_rural', stage:'s18', cond:(S)=>has(S,'rural'),
+ tag:'18 岁 · 走出大山',
+ title:'你是村里少有能继续念书的。全村都看着你,爸妈把一辈子的指望压你身上。',
+ opts:[
+  {t:'扛住，拼命往外走', s:'你成了全村饭桌上的传说。这份沉甸甸的期待,后来既是你的发动机,也是你的紧箍咒——松不得,也卸不下。', fx:{l:4,h:-4,r:4}, fl:['col','ambition'], mark:'背着全村的指望走出大山'},
+  {t:'留下来，先顾家', s:'你放下课本扛起锄头,供弟妹念书。多年后他们都有出息,逢年过节夸你伟大,只有你自己知道,有些夜里你也想过另一种活法。', fx:{r:10,m:-4,l:-3}, fl:['stayhome','filial'], mark:'18 岁就把自己留给了家'},
+ ]},
+
+{id:'e18_era10', stage:'s18', cond:(S)=>has(S,'era10'),
+ tag:'18 岁 · 短视频时代',
+ title:'同学都在拍视频,有人已经小火过一把。有人说"现在是普通人翻身的机会"。',
+ opts:[
+  {t:'我也拍拍看', s:'第一条视频三个赞,俩还是你妈的小号。但"被人看见"那点电流,你记住了,后来一直在找它。', fx:{l:4,r:3,m:-1}, fl:['social','create'], mark:'很早就在镜头前折腾'},
+  {t:'凑啥热闹，浪费时间', s:'你划走一个个爆款,心想"这能当饭吃?"。三年后你又刷到当年那个同学,他广告报价五位数,你工资四位数。', fx:{l:-2}, fl:['steady']},
+ ]},
+
+{id:'e18_era90', stage:'s18', cond:(S)=>has(S,'era90')||has(S,'era80'),
+ tag:'18 岁 · 时代的风',
+ title:'隔壁有人下海发了财,也有人厂子说黄就黄。大人天天争"铁饭碗还保不保险"。',
+ opts:[
+  {t:'去外面闯', s:'你揣着几百块挤上南下的绿皮车。车窗外稻田倒退,你不知道前面是什么,只知道留在原地更不甘心。', fx:{m:-3,l:4,h:-3}, fl:['risk','bigcity'], mark:'赶上了下海的风口'},
+  {t:'还是进单位踏实', s:'你削尖脑袋挤进了单位。后来风浪几起几落,你这条小破船晃得厉害,却始终没翻。', fx:{m:3,l:4}, fl:['steady','gov'], mark:'选了那年代的铁饭碗'},
+ ]},
+
+/* ===================== 22 岁 ===================== */
+{id:'e22_love', stage:'s22', tag:'22 岁 · 爱情来了', pri:true,
+ title:'毕业前后,你遇到一个挺合拍的人。要不要认真谈?',
+ opts:[
+  {t:'谈！喜欢就在一起', s:'你们挤一张小床、分一碗泡面、为五块钱的事拌嘴又和好。穷,但那是你后来再没体验过的、不掺杂质的喜欢。', fx:{r:10,h:2,l:2}, fl:['inlove'], mark:'22 岁,谈了场认真的恋爱'},
+  {t:'先拼事业，感情往后放', s:'你婉拒了。对方很快有了别人,婚礼请柬还寄给了你。你封了个红包,在停车场坐了很久才进去。', fx:{m:4,r:-6}, fl:['workfirst'], mark:'22 岁,把事业排在了感情前面'},
+  {t:'我享受单身，不想将就', s:'你过得自在,旅行、加班、想睡到几点睡到几点。只是逢年过节,你妈的眼神一年比一年沉。', fx:{h:4,m:2,r:-2}, fl:['single'], mark:'22 岁起,一个人也过得有声有色'},
+ ]},
+
+{id:'e22_job', stage:'s22', tag:'22 岁 · 第一份工作', cond:(S)=>has(S,'col'),
+ title:'手上两个 offer：一个稳定但钱少的本地单位,一个累但给钱的外地公司。',
+ opts:[
+  {t:'去大城市搏一把', s:'下了高铁,城市的灯晃眼。房租吃掉大半工资,合租隔断墙薄得能听见隔壁吵架。但你觉得人生才刚开机。', fx:{m:6,h:-6,l:4}, fl:['bigcity'], mark:'22 岁,一个人闯进大城市'},
+  {t:'留本地，图个安稳', s:'通勤十分钟,你妈每天有热饭。世界很小,小到三年后同学聚会,你是唯一一个气色没垮的。', fx:{m:2,h:5,r:6}, fl:['stayhome'], mark:'22 岁,选择留在家乡'},
+ ]},
+
+{id:'e22_gov', stage:'s22', tag:'22 岁 · 考公',
+ title:'家里天天念"考个编吧,旱涝保收"。考公的人乌泱泱一片。',
+ opts:[
+  {t:'考！上岸最香', s:'你刷了半年题,进面、体检、政审一路过。拿到通知那天你妈在电话那头哭了,你松了口气,又隐约觉得人生好像就此定型了。', fx:{m:3,l:3,r:5,h:-2}, fl:['gov'], cond:(S)=>!has(S,'biz'), mark:'考上了编制,稳稳上了岸'},
+  {t:'编制不适合我', s:'你弃考了,亲戚摇头叹气。你心想:有些笼子再金,关久了也会忘了怎么飞。', fx:{l:-1,h:2}, fl:['risk']},
+ ]},
+
+{id:'e22_startup', stage:'s22', tag:'22 岁 · 一个机会', cond:(S)=>any(S,['risk','social','second','ambition']),
+ title:'朋友拉你合伙创业,说看准了风口,"现在不上车,以后肠子悔青"。',
+ opts:[
+  {t:'干！年轻就该搏', s:'你把积蓄拍桌上,几个人挤出租屋画大饼、啃馒头、熬通宵。那是你这辈子梦做得最大、睡得最少的一段日子。', fx:{m:-12,h:-6,l:6}, fl:['biz','risk'], mark:'22 岁就拉着人创业'},
+  {t:'风险太大，先观望', s:'你没上车。那项目后来不温不火黄了,你松口气。可半夜偶尔也会冒出一句:万一呢?', fx:{m:3,l:-2}, fl:['steady']},
+ ]},
+
+{id:'e22_skill', stage:'s22', tag:'22 岁 · 一技傍身', cond:(S)=>has(S,'study')||has(S,'voc'),
+ title:'你发现自己某项技能挺吃香,下班能接私活多挣一份。',
+ opts:[
+  {t:'拼命接活攒第一桶金', s:'白天上班晚上接单,睡眠被剪成两段。存折数字涨了,黑眼圈也重了,你信"钱是熬出来的"。', fx:{m:10,h:-7}, fl:['second'], mark:'靠手艺攒下第一桶金'},
+  {t:'够用就行，留点时间生活', s:'你推掉一些单子,周末去爬山看展。账户没那么厚,但你活得像个人,不像台永动机。', fx:{m:2,h:6,r:4}, fl:['balance']},
+ ]},
+
+{id:'e22_drift', stage:'s22', tag:'22 岁 · 漂在城里', cond:(S)=>has(S,'earlywork')||has(S,'voc'),
+ title:'你在城里打了几年工,攒了点钱,但始终是个"外地人"。',
+ opts:[
+  {t:'继续熬，总有出头日', s:'你换了份更累更挣钱的活,城中村握手楼里,你的存折一点点变厚,头发一点点变少。', fx:{m:8,h:-6}, fl:['drift'], mark:'在城里咬牙硬熬的那些年'},
+  {t:'回老家用这点钱做小买卖', s:'你揣着积蓄回县城开了个小店。生意不大,但你终于是给自己干,不用看谁脸色。', fx:{m:2,r:5,l:2}, fl:['stayhome','biz_small'], mark:'回县城开了家小店'},
+ ]},
+
+{id:'e22_invest', stage:'s22', tag:'22 岁 · 第一次理财', cond:(S)=>any(S,['risk','era10','era00']),
+ title:'手里有了点闲钱,朋友圈人人都在聊基金、股票、币。',
+ opts:[
+  {t:'梭哈一把赌未来', s:'你投了进去。红了绿、绿了红,你学会半夜盯盘,也第一次体会到什么叫"心跳一百二还得装淡定"。', fx:(S)=>({m: Math.random()<0.5?14:-12, h:-3}), fl:['invest'], mark:'年轻时进过场,赌过一把'},
+  {t:'不懂不碰，放银行', s:'你忍住了。那波行情有人翻倍有人腰斩,你既没赚到也没亏掉,稳稳错过又稳稳躲过。', fx:{m:1,l:1}, fl:['steady']},
+ ]},
+
+{id:'e22_family', stage:'s22', tag:'22 岁 · 家里来电话', cond:(S)=>has(S,'rural')||has(S,'town'),
+ title:'家里来电:父亲身体不好,弟妹还在念书,话里话外都是钱。',
+ opts:[
+  {t:'每月寄钱，扛起来', s:'你给自己定了死规矩,工资先打一半回家。你的青春有一半,是替家里人活的——这话你从没说出口。', fx:{m:-6,r:8,h:-2}, fl:['filial'], mark:'年纪轻轻就扛起了一个家'},
+  {t:'先顾好自己，稳了再说', s:'你狠心少寄了些,夜里堵得慌。你告诉自己:先让自己浮出水面,才有力气拉别人。', fx:{m:4,r:-5}, mark:'先把自己顾住,再谈反哺'},
+ ]},
+
+{id:'e22_idle', stage:'s22', tag:'22 岁 · 慢一点', cond:(S)=>has(S,'idle')||has(S,'slack'),
+ title:'同龄人都在卷,你却想给自己一段间隔年,出去看看。',
+ opts:[
+  {t:'走！趁年轻去流浪', s:'你背包搭车、住青旅、打零工换宿。账户见了底,脑子里却塞进了一整个世界。值不值,只有你自己知道。', fx:{m:-6,h:5,l:5,r:5}, fl:['gap'], mark:'年轻时去流浪过一段'},
+  {t:'别太任性，先立足', s:'你压下了出走的念头,老实上班。那个"间隔年"成了你收藏夹里一直没点开的攻略,落了灰。', fx:{m:4,l:-1}, fl:['steady']},
+ ]},
+
+/* ===================== 30 岁 ===================== */
+{id:'e30_marry', stage:'s30', tag:'30 岁 · 婚姻这道坎', pri:true,
+ title:'三十岁,亲戚的眼神、爸妈的叹气、相亲的饭局一起涌来。'+
+       '',
+ opts:[
+  {t:'和合适的人，结了', s:'婚礼不算气派,但你牵 TA 手时心是定的。司仪问"愿不愿意",你那声"我愿意"喊得有点大,亲友都笑了。', fx:{r:12,m:-6,h:3}, fl:['married','spouse_good'], cond:(S)=>has(S,'inlove'), mark:'30 岁,娶/嫁了那个对的人'},
+  {t:'相亲速配，先成家', s:'见了第八个,你俩都累了,一拍即合就领了证。谈不上多爱,但搭伙过日子,也能过出感情——大概率吧。', fx:{r:6,m:-5,h:1}, fl:['married','spouse_plain'], cond:(S)=>!has(S,'inlove')&&!has(S,'single'), mark:'30 岁,相亲速配成了家'},
+  {t:'不将就，单身也挺好', s:'你顶住所有声音继续一个人过。亲戚说你眼光高,你笑笑没接话——他们不知道,你只是不想用余生换一句"总算结了"。', fx:{r:-3,m:5,h:2,l:1}, fl:['single'], mark:'30 岁,扛住了催婚没将就'},
+ ]},
+
+{id:'e30_house', stage:'s30', tag:'30 岁 · 要不要上车',
+ title:'房价一年一个样。家里说"先上车,首付帮你凑点"。',
+ opts:[
+  {t:'咬牙买，背上房贷', s:'签字时手心全是汗,从此工资先被银行划走一截。但躺进自己的房子那晚,你睡得格外沉——哪怕这房子有三十年是银行的。', fx:{m:-14,h:-3,r:4,l:3}, fl:['house','mortgage'], mark:'30 岁,咬牙上车买了房'},
+  {t:'不买，钱拿去做别的', s:'你继续租房,把钱攥手里。有人笑你没远见,你说"我不想后半生给一套房打工"。这话对错,得看后来房价脸色。', fx:{m:6,l:-2}, fl:['renter'], mark:'30 岁,偏不买房'},
+ ]},
+
+{id:'e30_career', stage:'s30', tag:'30 岁 · 职业天花板', cond:(S)=>!has(S,'biz'),
+ title:'干了几年,你摸到了天花板:往上很难,跳槽又怕踩空。',
+ opts:[
+  {t:'跳进大厂，赌个高薪', s:'薪资翻倍,工作强度也翻倍。电梯里全是行色匆匆的人,包括头发一天比一天少的你。', fx:{m:14,h:-9,l:2}, fl:['bigtech'], mark:'30 岁,跳进高薪高压的大厂'},
+  {t:'转行，去做更想做的事', s:'你从头学起,薪水先砍一刀,被比你小五岁的人叫"哥/姐"还得虚心请教。但你不再是那个一睁眼就不想上班的人了。', fx:{m:-8,h:4,l:3}, fl:['switch'], mark:'30 岁,鼓起勇气转了行'},
+  {t:'算了，稳住现状', s:'你不折腾了,把心思挪回生活。野心退潮,平静涨上来。这未必是认输,也可能是终于看清自己要什么。', fx:{m:3,h:5,r:3}, fl:['steady','plateau']},
+ ]},
+
+{id:'e30_biz2', stage:'s30', tag:'30 岁 · 生意的坎', cond:(S)=>any(S,['biz','biz_small','second']),
+ title:'你的小事业到了坎上:要么砸钱扩张赌一把,要么收着稳着慢慢来。',
+ opts:[
+  {t:'扩张！趁势做大', s:'你贷款、招人、租大场子。摊子铺开那刻你既兴奋又心慌——这一把,赌的是全部身家和好几个家庭的饭碗。', fx:(S)=>({m: (has(S,'rich')||S.stats.l>60)?20:-18, h:-6}), fl:['expand'], mark:'30 岁,把生意豪赌着做大'},
+  {t:'稳着来，不贪大', s:'你守着一亩三分地精打细算。赚不了大钱,但也没在哪个深夜被资金链电话惊醒过。', fx:{m:6,h:2,r:3}, fl:['steady'], mark:'守着小生意,稳稳地过'},
+ ]},
+
+{id:'e30_old', stage:'s30', tag:'30 岁 · 父母老了',
+ title:'你忽然发现父母真的老了:走路慢了,病多了,开始需要你了。',
+ opts:[
+  {t:'接到身边照顾', s:'你换了大点的房,把爸妈接来。生活挤了累了,但饭桌上多两双筷子,你心里踏实。代价是你和伴侣的二人世界,基本没了。', fx:{r:9,m:-6,h:-3}, fl:['filial'], mark:'30 岁,把父母接到了身边'},
+  {t:'寄钱+常回家，先顾事业', s:'你给家里请了人,自己埋头打拼。电话里爸妈总说"别担心我们",你听得出那份小心翼翼,也听得出那份想你。', fx:{m:-3,r:-2,h:2}, mark:'用打拼回报父母,聚少离多'},
+ ]},
+
+{id:'e30_tempt', stage:'s30', tag:'30 岁 · 一点动摇', cond:(S)=>has(S,'married'),
+ title:'婚姻进了平淡期。一个懂你、对你好的人出现了,关系有点微妙。',
+ opts:[
+  {t:'守住底线，回归家庭', s:'你后退一步,把那点心动悄悄收好。回家重新认真看了看枕边人——平淡不是不爱,是爱凉成了温水,但还没凉透。', fx:{r:6,h:1}, fl:['loyal'], mark:'在动摇前守住了家'},
+  {t:'跟着感觉走，出了轨', s:'你越了那条线。短暂的悸动之后,是更长的提心吊胆和一地鸡毛。有些东西碎了,拿胶水也粘不回原样。', fx:{r:-13,h:-3,l:-3}, fl:['affair'], mark:'30 岁,做了件让自己后悔的事'},
+ ]},
+
+{id:'e30_burnout', stage:'s30', tag:'30 岁 · 大城市的夜', cond:(S)=>has(S,'bigcity')||has(S,'bigtech'),
+ title:'又一个加班的深夜,你站在写字楼窗前看着这座留不下你的城,突然很想回家。',
+ opts:[
+  {t:'逃离北上广，回小城重启', s:'你裸辞回了老家,房价低了、爸妈近了、夜里能睡整觉了。有人说你认输,你说这叫及时止损。', fx:{m:-4,h:8,r:8,l:1}, fl:['stayhome','retreat'], mark:'30 岁,从大城市撤了回来'},
+  {t:'再咬咬牙，不甘心', s:'你抹把脸转身回了工位。这城没给你归属感,但你不想让前面熬的几年白瞎。沉没成本,是中年人最大的牢笼。', fx:{m:8,h:-7,l:2}, fl:['bigcity','grind'], mark:'在大城市又多撑了一程'},
+ ]},
+
+/* ===================== 40 岁 ===================== */
+{id:'e40_kid', stage:'s40', tag:'40 岁 · 要不要孩子', pri:true, cond:(S)=>has(S,'married')&&!has(S,'kids'),
+ title:'结了婚,下一个问题追上来:这孩子,到底要不要?',
+ opts:[
+  {t:'要，迎接新生命', s:'孩子出生那天,你在产房外腿都软了。从此你多了一个软肋,也多了一身铠甲——以及一笔望不到头的开销。', fx:{r:8,m:-12,h:-4,l:2}, fl:['kids'], mark:'当了爸/妈,有了软肋也有了铠甲'},
+  {t:'不要，过二人世界', s:'你俩决定为自己活。旅行、攒钱、睡到自然醒,亲戚的盘问你们练就了一套标准回答。值不值,二十年后才揭晓。', fx:{m:5,h:4,r:2}, fl:['dink'], mark:'选了丁克,把节奏攥在自己手里'},
+ ]},
+
+{id:'e40_single', stage:'s40', tag:'40 岁 · 一个人的中年', pri:true, cond:(S)=>has(S,'single')&&!has(S,'married'),
+ title:'四十岁还是一个人。逢年过节的饭桌上,你成了被关心也被议论的那个。',
+ opts:[
+  {t:'享受自由，把自己活成一支队伍', s:'养花、撸猫、说走就走。你把独居过出了滋味,朋友圈点赞最多的永远是你的早午餐和落日。', fx:{h:6,l:2,r:3}, fl:['free_single'], mark:'把一个人的日子过得有声有色'},
+  {t:'还是想找个伴', s:'你放下些挑剔重新走进人群。中年人的感情少了悸动,多了"搭把手过日子"的踏实——以及对方一起带来的、一整套亲戚。', fx:{r:7,m:-3}, fl:['lateluck','married','spouse_plain'], mark:'中年时,认真又找了个伴'},
+ ]},
+
+{id:'e40_mid', stage:'s40', tag:'40 岁 · 中年危机',
+ title:'上有老下有小,职场上被年轻人追着跑。你第一次感到"不敢停"。',
+ opts:[
+  {t:'卷起来，保住饭碗', s:'你逼自己学新软件、陪笑、加班到末班地铁。中年人的体面,是用一句句"我还行"硬撑出来的。', fx:{m:6,h:-8,r:-2}, fl:['grind'], mark:'40 岁,在职场拼命守住阵地'},
+  {t:'转型搞副业/小本经营', s:'你不硬扛了,开了个小店/做起副业,把后半场的主动权一点点拿回手里。第一个月亏了,第三个月,回本了。', fx:{m:-4,h:3,l:3}, fl:['second','transform'], mark:'40 岁,给自己留了条后路'},
+  {t:'看开了，不争了', s:'你放下往上爬的执念,准点下班接娃、陪爸妈散步。世界照转,你心里那根弦,终于松了。', fx:{h:6,r:5,m:-2}, fl:['steady','letgo']},
+ ]},
+
+{id:'e40_edu', stage:'s40', tag:'40 岁 · 孩子的教育', cond:(S)=>has(S,'kids'),
+ title:'孩子上学了,鸡娃还是放养,成了你家最大的战争。',
+ opts:[
+  {t:'砸钱鸡娃，不能让娃输', s:'学区房、补习班、钢琴课,你的钱包和周末全献给了娃。你说"我吃过的苦不能让他再吃",娃却在日记里写"想让爸妈别那么累"。', fx:{m:-12,h:-4,r:3}, fl:['pushparent'], mark:'把半生积蓄押在了孩子身上'},
+  {t:'放养，让娃按自己节奏长', s:'你顶住焦虑,给了娃一个不那么紧绷的童年。对错没人说得准,但你家的笑声,比隔壁多一些。', fx:{r:6,h:3,m:2}, fl:['freeparent'], mark:'选择让孩子自由生长'},
+ ]},
+
+{id:'e40_marriage', stage:'s40', tag:'40 岁 · 婚姻的考验', cond:(S)=>has(S,'married'),
+ title:'结婚十几年,激情早没了,剩下习惯、责任,和偶尔的厌倦。',
+ opts:[
+  {t:'用心经营，把日子焐暖', s:'你重新学着制造点小惊喜,陪 TA 散步、记得纪念日。爱情熬成了亲情,但亲情也能很烫。', fx:{r:9,h:3}, fl:['warm_home','spouse_good'], mark:'把渐冷的婚姻又焐热了'},
+  {t:'貌合神离，凑合过', s:'你俩住同一屋檐下,像两个有礼貌的室友。孩子还小,有些话谁都没说出口,就这么拖着。', fx:{r:-6,h:-2}, fl:['cold_home'], mark:'婚姻成了搭伙过日子'},
+  {t:'离了，各自重来', s:'你们体面地分了手。一纸协议结束一段关系,你松口气,又在某个深夜对着半张空床,空落落的。', fx:{r:-8,m:-8,h:2,l:1}, fl:['divorce'], cond:(S)=>has(S,'cold_home')||has(S,'affair')||S.stats.r<48, mark:'40 岁,结束了一段婚姻'},
+ ]},
+
+{id:'e40_chance', stage:'s40', tag:'40 岁 · 最后一个风口', cond:(S)=>any(S,['risk','biz','second','invest','expand']),
+ title:'一个看着很大的机会摆面前,有人撺掇"40 岁不搏,这辈子就这样了"。',
+ opts:[
+  {t:'押上半生积蓄，搏最后一把', s:'你把家底压了上去。赢了是逆风翻盘,输了是从头再来。中年人的孤注一掷没有退路,因为身后站着一家老小。', fx:(S)=>({m: (S.stats.l>58||has(S,'rich'))?22:-22, h:-7, r:-3}), fl:['allin'], mark:'40 岁,孤注一掷赌了最后一把'},
+  {t:'稳住，守好现在的一切', s:'你看了看身后的家,把冲动按了下去。你早不是一个人了,输不起——这认知让你踏实,也让你偶尔不甘。', fx:{m:3,h:2,r:4}, fl:['steady'], mark:'40 岁,学会了为家人踩刹车'},
+ ]},
+
+{id:'e40_money', stage:'s40', tag:'40 岁 · 钱怎么打理', cond:(S)=>S.stats.m>55,
+ title:'打拼半生,手里终于有了笔像样的钱。怎么让它别缩水,你犯了难。',
+ opts:[
+  {t:'激进投资，让钱再翻番', s:'你投进了看着诱人的项目。中年人的贪心比年轻人更险,因为这回你真输不起。', fx:(S)=>({m: Math.random()<0.5?16:-20, h:-3}), fl:['invest'], mark:'中年拿身家又赌了把理财'},
+  {t:'稳健配置，守住果实', s:'你把钱分散放稳,不求暴利只求安心。后半生你不想再为钱睡不着了——这一觉,值这点收益差。', fx:{m:5,h:2,l:1}, fl:['steady'], mark:'守住了半生的积蓄'},
+ ]},
+
+{id:'e40_reunion', stage:'s40', tag:'40 岁 · 同学聚会',
+ title:'一场同学聚会:有人开豪车,有人换了三套房,也有人一句话没说早早就走了。',
+ opts:[
+  {t:'被刺激到，回去更拼了', s:'你举杯笑得体面,回家路上沉默了一整段。第二天你报了个班、改了简历——人比人有时也是动力,虽然憋屈得想骂街。', fx:{m:4,h:-4,r:-1}, fl:['compare'], mark:'40 岁,在同学会上被狠狠刺激过'},
+  {t:'看淡了，各过各的', s:'你发现混得好的也一脸愁,风光背后各有各的债。你给自己续了杯茶:不比了,我的日子,冷暖我自己知道。', fx:{h:4,r:2}, fl:['letgo']},
+ ]},
+
+{id:'e40_health2', stage:'s40', tag:'40 岁 · 身体的中场',
+ title:'一次普通感冒拖了半个月才好。身体明明白白告诉你:不年轻了。',
+ opts:[
+  {t:'认真养生，把底子补回来', s:'你开始早睡、走路、忌口,把透支的一点点赎回来。后半生的本钱,你想自己攒,不想求人也不想求医。', fx:{h:11,m:-3,l:2}, fl:['steady'], mark:'40 岁,开始认真赎回健康'},
+  {t:'中年人哪顾得上这些', s:'你笑说"老毛病",转头又是连轴转。身体那本欠账簿,这年又厚了一页,你假装没翻见。', fx:{h:-10,m:4}, fl:['sick'], mark:'40 岁,还在拿命换钱'},
+ ]},
+
+{id:'e40_pillar', stage:'s40', tag:'40 岁 · 夹心层',
+ title:'父母的药费、孩子的学费、自己的房贷,三座山一起压在一个肩膀上。',
+ opts:[
+  {t:'咬牙全扛，不喊累', s:'你成了家里那根不能倒的顶梁柱。累不累没人问,你也不敢说——你一倒,这一大家子就跟着塌。', fx:{m:-6,h:-5,r:5}, fl:['pillar'], mark:'40 岁,一个人扛起了三座山'},
+  {t:'学着求助，分担压力', s:'你拉下脸跟兄弟姐妹、跟伴侣摊开说。原来扛不动时喊一声,天不会塌,反倒松快了不少。', fx:{r:4,h:3,m:-2}, fl:['ask_help'], mark:'40 岁,学会了喊人搭把手'},
+ ]},
+
+/* ===================== 50 岁以后 ===================== */
+{id:'e50_kid', stage:'s50', tag:'50 岁后 · 孩子飞了', pri:true, cond:(S)=>has(S,'kids'),
+ title:'孩子长大了,要去远方追自己的人生。家一下子空了。',
+ opts:[
+  {t:'放手，祝福他去闯', s:'你帮他收拾行李,塞了沓钱和一句"别怕,有家在"。关门那刻你眼眶热了,心却是宽的——孩子飞得远,是你养得好。', fx:{r:6,h:2,l:2}, fl:['letgo_kid','kid_far'], mark:'体面放手,让孩子去飞'},
+  {t:'舍不得，想留他在身边', s:'你旁敲侧击劝他留下,他沉默了。爱有时是放手,这一课你学得有点慢、有点疼,孩子也憋得有点闷。', fx:{r:-4,h:-1}, fl:['kid_near'], mark:'晚年,在和孩子的拉扯里学放手'},
+  {t:'孩子赖着不走，啃起了老', s:'三十多岁的他窝在家打游戏,理直气壮地花你的退休金。你又气又心软,养了一辈子,最后养了个断不了奶的"巨婴"。', fx:{m:-10,r:-4,h:-3}, fl:['kid_naked'], mark:'晚年,摊上了个啃老的娃'},
+ ]},
+
+{id:'e50_partner', stage:'s50', tag:'50 岁后 · 老来伴', pri:true, cond:(S)=>has(S,'married')&&!has(S,'widow'),
+ title:'孩子走了,屋里又只剩你和老伴两个人,像回到了起点。',
+ opts:[
+  {t:'携手慢慢变老', s:'你俩晨练、买菜、为电视遥控器斗嘴。激情是没了,但有个人知道你哪颗牙不好、爱吃哪口,这就是底气。', fx:{r:8,h:3}, fl:['together_old'], mark:'晚年,和老伴搭着手慢慢变老'},
+  {t:'这才发现，早就无话可说', s:'孩子这个话题没了,你俩才发现餐桌上能聊的所剩无几。你们没离,只是各自刷手机,把婚姻过成了合租。', fx:{r:-5,h:-1}, fl:['cold_home'], mark:'晚年,和老伴成了沉默的室友'},
+ ]},
+
+{id:'e50_health', stage:'s50', tag:'50 岁后 · 身体的总账',
+ title:'年轻时怎么对身体,现在身体就怎么回敬你。一张检查单,说明了一切。',
+ opts:[
+  {t:'好好养着，把日子过长过稳', s:'你彻底慢下来:吃药、复查、晒太阳、走路。能多陪家人一天,在你眼里就是赚的。', fx:{h:10,m:-4,r:4}, fl:['settle'], mark:'晚年,认真和身体握手言和'},
+  {t:'不服老，还想再折腾点事', s:'你闲不住,又张罗起新事情。家人劝你歇,你说"人活着总得有个奔头"。这股劲儿要了你的命,也撑着你的命。', fx:{h:-6,m:3,l:2}, fl:['restless'], mark:'到老都不肯认输'},
+ ]},
+
+{id:'e50_money', stage:'s50', tag:'50 岁后 · 养老的底气',
+ title:'退休的话题近了。你开始盘算:后半辈子,靠什么过?',
+ opts:[
+  {t:'攒养老钱，留足底气', s:'你把开销压了压,给晚年存了笔"不求人"的钱。手里有粮,心里不慌,谁来都不慌。', fx:{m:6,h:1}, fl:['secure'], mark:'给晚年攒下不求人的底气'},
+  {t:'钱够花就行，享受当下', s:'你不死攒了,该旅游旅游、该下馆子下馆子。你想通了:钱是用来过日子的,不是用来盯着数字傻乐的。', fx:{h:5,r:4,m:-5}, fl:['enjoy'], mark:'晚年学会了把钱花在生活上'},
+ ]},
+
+{id:'e50_regret', stage:'s50', tag:'50 岁后 · 一个旧梦',
+ title:'某个午后,你翻出年轻时的旧物,想起一个一直没去实现的梦。',
+ opts:[
+  {t:'趁还能动，去把它完成', s:'你重新拾起搁置半生的念头——也许是趟旅行、一门手艺、一件想做的事。圆梦那天你像个孩子,笑得没心没肺。', fx:{h:3,r:3,l:4}, fl:['dream_done'], mark:'晚年,圆了个搁置半生的梦'},
+  {t:'算了，这辈子就这样吧', s:'你把旧物重新收好,叹了口气。有些梦注定停在"如果当年",这也许就是人生交的尾款。', fx:{h:-2,l:-2}, fl:['dream_lost'], mark:'有个梦,终究停在了"如果当年"'},
+ ]},
+
+{id:'e50_lonely', stage:'s50', tag:'50 岁后 · 空房子', cond:(S)=>S.stats.r<46,
+ title:'夜深了,大房子里只有你一个。你忽然发现,这些年好像把人都弄丢了。',
+ opts:[
+  {t:'主动去修复断掉的关系', s:'你拨通几个久未联系的号码,有的接了,有的成了空号。低头认个错没那么难,你只是用了半辈子才学会。', fx:{r:10,h:2,l:2}, fl:['reconnect'], mark:'晚年,鼓起勇气找回了一些人'},
+  {t:'习惯了，就这样过完', s:'你关上灯。孤独像件穿旧的外套,谈不上暖,但也脱不下来了,索性裹着睡。', fx:{r:-4,h:-3}, fl:['alone'], mark:'晚年,与孤独默默相处'},
+ ]},
+
+{id:'e50_give', stage:'s50', tag:'50 岁后 · 回馈', cond:(S)=>S.stats.m>58||has(S,'rich'),
+ title:'手里有了余力,你开始想:能不能为别人做点什么?',
+ opts:[
+  {t:'资助家乡/帮衬后辈', s:'你出钱修了村里的路、供了几个上不起学的娃。名字刻上了石碑,但你更在意那几双因为你而亮起来的眼睛。', fx:{r:8,m:-6,l:4}, fl:['giveback'], mark:'晚年,把得到的反哺了出去'},
+  {t:'先顾好自己的小家', s:'你把余力都给了家人,儿孙绕膝、其乐融融。你说,把自己这一亩三分地经营好,就是最大的善。', fx:{r:5,h:2}, fl:['homefirst'], mark:'晚年,把日子都过给了家人'},
+ ]},
+];
+</script>
+
+<!-- ============ 内容库：意外 FATE ============ -->
+<script>
+/* 意外结构 {id,kind,cond?(S),text,after?,opts?:[{t,s,fx,fl,mark,cond?}]}
+   独立于玩家选择，22岁起每阶段约72%概率天降一桩。有好有坏，制造不可预测感（去鸡汤的关键） */
+window.FATE = [
+ {id:'f_lottery', kind:'天降横财',
+  text:'你随手买的彩票,中了。不是头奖,但也是你大半年的工资。',
+  opts:[
+   {t:'稳住，存起来/还房贷', s:'你压住狂跳的心,把钱稳稳安排了。这笔意外之财没让你飘,反倒让你睡了几个踏实觉。', fx:{m:14,h:2}, fl:['windfall'], mark:'中过一笔小彩票,没乱花'},
+   {t:'潇洒一回，犒劳自己', s:'你换了手机、请客、来了趟说走就走的旅行。钱花光了,但那段日子的快乐是真的,你不后悔——大概。', fx:{m:4,h:5,r:4}, mark:'中彩票后潇洒挥霍了一把'},
+  ]},
+ {id:'f_chaiqian', kind:'拆迁', cond:(S)=>any(S,['rural','town','worker'])&&!has(S,'rich'),
+  text:'老家那片要拆了。一夜之间,你从"普通人"变成了亲戚口中的"拆迁户"。',
+  after:'天上真的会掉馅饼,虽然砸中谁全凭命。', fx:{m:19,l:6}, fl:['windfall','chaiqian'],
+  opts:[{t:'这运气，没谁了', s:'你拿着补偿款,看着推土机推平了童年的院子。有钱了,也有点空落落的——回不去的不只是房子。', fx:{m:19,l:6}, fl:['windfall','chaiqian'], mark:'赶上拆迁,意外发了笔财'}]},
+ {id:'f_noble', kind:'贵人', cond:(S)=>S.stats.r>48,
+  text:'一个赏识你的人，在关键节点拉了你一把——可能是个机会,也可能是句话。',
+  opts:[{t:'抓住，好好谢人家', s:'这一把让你少走了好几年弯路。你记着这份情,也暗暗发誓:有天有能力了,也去拉别人一把。', fx:{m:10,l:6,r:4}, fl:['noble'], mark:'人生路上遇过一个贵人'}]},
+ {id:'f_viral', kind:'一夜爆红', cond:(S)=>any(S,['create','social','second'])||has(S,'era10'),
+  text:'你随手发的东西,莫名其妙火了。一觉醒来,手机被通知淹没。',
+  opts:[
+   {t:'趁热接住，转成钱/机会', s:'你手忙脚乱地接住了这泼天的流量,接广告、涨粉、变现。红利来得猛去得也快,但你确实吃到了一口。', fx:{m:14,l:4,r:3}, fl:['windfall','famous'], mark:'有过一次一夜爆红的经历'},
+   {t:'热度太吓人，没敢接', s:'你被突如其来的关注吓住了,什么都没做。几天后流量退潮,一切归于平静。你既没赚到,也乐得清静。', fx:{l:1}, mark:'红过一次,但没接住'},
+  ]},
+ {id:'f_house_up', kind:'房子升值', cond:(S)=>has(S,'house'),
+  text:'你那套咬牙买的房,这几年悄悄翻了番。',
+  opts:[{t:'账面上，我也算个"富人"了', s:'你看着房产 App 上的数字,有点恍惚。当年那个为首付愁白头的自己,要是知道就好了。', fx:{m:16,l:3}, fl:['windfall'], mark:'当年买的房,后来狠狠升了值'}]},
+ {id:'f_inherit', kind:'遗产',
+  text:'一位许久未见的长辈走了,留给你一笔不大不小的遗产,还有一封信。',
+  opts:[{t:'收下，也收下那封信', s:'钱解了你燃眉之急,但那封信你看了好几遍。原来在你不知道的角落,一直有人惦记着你。', fx:{m:12,r:3,h:-1}, fl:['windfall'], mark:'继承过一笔带着牵挂的遗产'}]},
+
+ {id:'f_car', kind:'飞来横祸',
+  text:'一场车祸/意外,把你送进了医院。万幸捡回条命,但伤了元气。',
+  opts:[
+   {t:'打官司争个说法', s:'你较了真,耗时耗力,最后争回了赔偿,也争回一口气。但躺在病床上的那些天,你重新排了排人生里什么最重要。', fx:{h:-12,m:4,l:-2}, fl:['accident'], mark:'遭过一场车祸,捡回条命'},
+   {t:'算了，破财消灾', s:'你没纠缠,自认倒霉。养伤花了不少钱,但你想开了:人没事,比什么都强。', fx:{h:-12,m:-6}, fl:['accident'], mark:'遭过一场横祸,破财消了灾'},
+  ]},
+ {id:'f_illness', kind:'重病',
+  text:'一次体检,查出了点大问题。住院、手术、化验单,把你的生活按下了暂停键。',
+  opts:[{t:'配合治疗，扛过去', s:'你在病房里见了形形色色的人,也第一次认真想:如果只剩一年,我会怎么过?出院那天,阳光特别晃眼。', fx:{h:-16,m:-10,l:1}, fl:['bigsick'], mark:'生过一场大病,在鬼门关前走了一遭'}]},
+ {id:'f_layoff', kind:'失业', cond:(S)=>any(S,['worker','bigtech','grind','drift'])&&!has(S,'gov'),
+  text:'公司一纸通知,优化到了你头上。三十五岁/四十多岁的你,捧着纸箱站在写字楼下。',
+  opts:[
+   {t:'快速找下家，先活下去', s:'你海投简历,放低姿态,接受了降薪。中年人没有矫情的资格,有口饭吃就先吃着。', fx:{m:-8,h:-4,r:-2}, fl:['laidoff'], mark:'中年被裁过一次,狼狈但挺住了'},
+   {t:'被逼着自己干', s:'此路不通,你索性自己开了张。被裁是把刀,捅了你一下,也把你捅上了另一条道。', fx:{m:-6,l:2}, fl:['laidoff','biz'], mark:'被裁后,逼自己创了业'},
+  ]},
+ {id:'f_scam', kind:'被骗', cond:(S)=>any(S,['invest','biz','windfall','allin'])||S.stats.m>55,
+  text:'一个看着稳赚的项目/一个信得过的人,卷走了你一大笔钱。',
+  opts:[{t:'报警、认栽、重新来', s:'钱大概率追不回来了。你气得几天没睡,但也学到了一课:这世上越是稳赚不赔的,越是个坑。', fx:{m:-16,h:-3,l:-2}, fl:['scammed'], mark:'被狠狠骗过一大笔钱'}]},
+ {id:'f_parent_sick', kind:'父母重病', cond:(S)=>S.stats.r>40,
+  text:'父母病重住院。陪护、医药费、和兄弟姐妹的分担,一下全压过来。',
+  opts:[
+   {t:'放下工作，守在床前', s:'你请了长假守着,工作丢了不少。但握着爸妈枯瘦的手,你想:有些时间错过了,真就再也补不回来。', fx:{r:8,m:-10,h:-4}, fl:['filial'], mark:'放下一切,陪父母走过一程'},
+   {t:'出钱请最好的护理', s:'你扛起医药费,在医院和公司之间连轴转。深夜的走廊里,你一个人消化了很多说不出口的累。', fx:{m:-10,h:-5,r:2}, mark:'用尽全力给父母最好的照顾'},
+  ]},
+ {id:'f_widow', kind:'生离死别', cond:(S)=>has(S,'married')&&!has(S,'widow')&&Math.random()<0.5,
+  text:'一场意外/一场病,老伴先走了一步。偌大的屋子,从此只剩你一个的脚步声。',
+  opts:[{t:'收拾好自己，替 TA 也好好活', s:'葬礼后你在厨房愣了很久——你不知道盐放哪儿,那都是 TA 管的。你学着一个人生活,把对 TA 的想念,过成了日子。', fx:{r:-14,h:-5,l:-2}, fl:['widow'], mark:'中途,送走了相伴半生的人'}]},
+ {id:'f_kid_trouble', kind:'孩子出事', cond:(S)=>has(S,'kids'),
+  text:'孩子出了点状况——生了场病/闯了个祸/遇了点坎,把你的心揪得死紧。',
+  opts:[{t:'拼了命也要护住他', s:'你才明白什么叫"为母/为父则刚"。再大的事,只要孩子没事,你都能扛。这一关过完,你白了不少头发。', fx:{h:-8,m:-6,r:5}, fl:['kid_crisis'], mark:'为孩子的一道坎,拼过命'}]},
+ {id:'f_disaster', kind:'天灾人祸', cond:(S)=>any(S,['biz','biz_small','expand']),
+  text:'一场谁也没料到的变故(天灾/行情/政策),让你的生意一夜入冬。',
+  opts:[
+   {t:'断臂求生，保住基本盘', s:'你忍痛关了店、裁了人、欠了债。活下来比什么都重要,你把牙咬碎了往肚里咽。', fx:{m:-16,h:-5}, fl:['biz_crash'], mark:'生意遭遇变故,断臂求生'},
+   {t:'扛不住，认赔离场', s:'你结清了能结的,关门那天给店门拍了张照。失败不丢人,你只是运气差了点,赶上了。', fx:{m:-12,l:-2}, fl:['biz_fail'], mark:'生意黄在了一场意外里'},
+  ]},
+ {id:'f_oldfriend', kind:'老友离场',
+  text:'一个同龄人突然走了。葬礼上,你看着遗照里那张笑脸,坐了很久。',
+  opts:[{t:'回家，给在乎的人打了个电话', s:'回去的路上你给爸妈、给老友挨个打了电话,没什么正事,就是想听听声音。生死面前,很多计较突然就轻了。', fx:{r:6,h:1,l:1}, fl:['mortality'], mark:'一场葬礼,让你重新掂量了人生'}]},
+ {id:'f_promotion', kind:'时来运转', cond:(S)=>any(S,['bigtech','gov','grind','steady'])&&S.stats.l>45,
+  text:'机会莫名其妙落到你头上——升职/接了个大单/被点了名。',
+  opts:[{t:'接住，证明自己', s:'你也说不清是实力还是运气,但你稳稳接住了。后来想想,机会来时你正好在场、正好准备好了,这本身就是种本事。', fx:{m:12,r:2,l:3}, fl:['rise'], mark:'某次时来运转,被命运点了名'}]},
+ {id:'f_health_warn', kind:'健康警报', cond:(S)=>S.stats.h<50,
+  text:'一次小毛病拖成了大麻烦,医生敲着桌子让你"别拿命换钱了"。',
+  opts:[
+   {t:'听劝，开始养身体', s:'你被吓住了,戒了夜宵、办了卡、推了酒局。赚钱慢了,但你不想躺在 ICU 里数钱。', fx:{h:10,m:-4}, fl:['settle'], mark:'被一次警报吓得开始惜命'},
+   {t:'嘴上答应，转头照旧', s:'你点头如捣蒜,出了诊室又点了份烧烤。这账还在滚,只是你又往后赊了一笔。', fx:{h:-10,m:3}, fl:['sick']},
+  ]},
+ {id:'f_robbed', kind:'天有不测',
+  text:'你遭了点无妄之灾——被偷、被讹、或一笔钱打了水漂。倒霉得莫名其妙。',
+  opts:[{t:'骂两句，日子照过', s:'你郁闷了好几天,跟谁都念叨。但生活这玩意儿,不会因为你倒霉就停下等你,擦擦眼泪还得往前走。', fx:{m:-8,h:-2}, mark:'平白无故倒过一次大霉'}]},
+];
+</script>
+
+<!-- ============ 内容库：结局 ENDINGS ============ -->
+<script>
+/* 结局 {name,img?,match(S)->分(取最高),card(S)->{sub,win,regret,comment,quote}}
+   点评：接地气 + 黑色幽默 + 反转 + 带温度,不灌鸡汤。可扩充。 */
+window.ENDINGS = (function(){
+  const st=S=>S.stats;
+  return [
+
+  {name:'创业逆袭型', img:'end_win.png',
+   match:S=>(any(S,['biz','expand','allin'])&&st(S).m>=68)?100+st(S).m:-1,
+   card:S=>({
+     sub:'一个把"万一呢"真的搏成了的人。',
+     win:'从出租屋啃馒头,到给一帮人发工资,你是真本事,不全是运气。当年笑你的人,如今在你公司楼下送外卖路过。',
+     regret:'代价是,你结算卡上"成就"那栏写得发光,"陪家人"那栏却老在落灰。你上次好好吃顿家里的饭,是哪年的事了?',
+     comment:'所长翻完你的档案,先吹了声口哨——牛,是真的牛。但有句话得戳穿你:你最舍得投资的是事业,最舍不得花的是陪人的时间。钱明年还能再赚,孩子的家长会、爸妈的生日,过期不补、概不退换。下半场,记得把"赢"分一点给饭桌。',
+     quote:'你赢了全世界,记得回头看看,谁还在原地给你留灯。'
+   })},
+
+  {name:'创业翻车型', img:'end_crash.png',
+   match:S=>(any(S,['biz','expand','allin','bet_friend','biz_crash','biz_fail'])&&st(S).m<45)?95+(45-st(S).m):-1,
+   card:S=>({
+     sub:'一个敢上牌桌、也被掀过桌的人。',
+     win:'你不是没赢过,你是敢押上全部。这世上九成人连牌桌都不敢坐,而你坐下来,认真和命运对赌过几把。',
+     regret:'有一把输得太狠,积蓄、元气、甚至几个朋友,都赔了进去。要是当时手再松一点、收得再早一点……可惜人生没有"如果"这个按钮。',
+     comment:'所长想隔着屏幕拍拍你肩膀。赔钱真的不丢人,丢人的是那些从没为自己拼过、却最爱事后诸葛亮的人——他们凭什么笑你?你账户是空了点,但你身上有个东西很多人一辈子都没攒下:你知道"老子真的敢"。这玩意儿,翻盘的时候用得上。别把这次摔跤,记成你的句号。',
+     quote:'摔在泥里的人才有资格说:我至少冲到过这儿。'
+   })},
+
+  {name:'高薪高压型', img:'end_grind.png',
+   match:S=>(has(S,'bigtech')&&st(S).m>=60&&st(S).h<48)?92+(60-st(S).h):-1,
+   card:S=>({
+     sub:'一个用头发和睡眠换工牌的人。',
+     win:'你挤进了最卷的那张桌,薪水、职级、亲戚口中的"有出息",你全拿到了。朋友圈里,你是那个"混得最好"的范本。',
+     regret:'体检报告的箭头一年比一年多。你买得起好房好车,却买不回一个能睡到自然醒、不靠咖啡续命的周末。',
+     comment:'所长说句大实话:你的财报很漂亮,但有一栏年年亏损,叫"身体"。你总说"忙完这阵就好",可所长跟了这么多人,从没见谁真等到过那个"忙完"。钱是赚不完的,可以暂停;命是单机存档,删了不能读档。健身卡别只用来拍照,真去用——这是所长求你了。',
+     quote:'拿命换的钱,十有八九,最后又得拿钱去换命。'
+   })},
+
+  {name:'体制内安稳型', img:'end_gov.png',
+   match:S=>(has(S,'gov')&&st(S).h>=50&&st(S).m>=40)?80+st(S).r/3:-1,
+   card:S=>({
+     sub:'一个把"稳"字焊死在人生里的人。',
+     win:'你端稳了那只碗,风浪几起几落都没翻船。同学会上,你是那个看起来"最没故事"、也"最没皱纹"的人。',
+     regret:'偶尔深夜你也会想:那条没走的、更野的路,会通向哪儿?稳是真稳,可稳里头,藏着一丁点没说出口的不甘。',
+     comment:'所长得给你正名:这年头能把"稳"过到极致,不是没本事,是一种早早看透的清醒。别理那些说你没闯劲的人,他们半夜被房贷和 KPI 惊醒时,你睡得正香。唯一一句嘴:稳是底盘,不该是天花板。给自己留个"野"一点的爱好,别让这辈子,真就一眼望到了头。',
+     quote:'能稳稳当当过完一辈子,本身就是种被低估的天赋。'
+   })},
+
+  {name:'有钱没健康型', img:'end_sickrich.png',
+   match:S=>(st(S).m>=65&&st(S).h<35)?90+(35-st(S).h):-1,
+   card:S=>({
+     sub:'一个钱包很厚、身体很薄的人。',
+     win:'在"搞钱"这门课上,你交了张高分卷。账户里的数字,是你半生拼搏实打实的勋章。',
+     regret:'可惜身体那门课你几乎交了白卷。能花钱享福的前提是有副好身子,而这恰恰是你一直赊着、没还的那笔账。',
+     comment:'所长替你心疼。你前半生拿身体换钱,本以为后半生能拿钱换回身体——结果发现,有些健康,标价"无货",多少钱都补不回。你不是不努力,你是把鸡蛋全压在了一个篮子里,还是个会漏的篮子。记住这句糙理:身体是 1,钱是后面的 0。1 没了,后面排再长的 0,也是一串寂寞。',
+     quote:'人这辈子最贵的奢侈品,是一个不用吃药的清晨。'
+   })},
+
+  {name:'平凡幸福型', img:'end_happy.png',
+   match:S=>(st(S).r>=62&&st(S).h>=52&&st(S).m>=42&&st(S).m<74)?78+st(S).r/4+st(S).h/4:-1,
+   card:S=>({
+     sub:'一个把普通日子过出滋味的人。',
+     win:'你没成什么大人物,但你有热乎的饭、说得上话的人、睡得着的觉。这种"普通的幸福",其实是最难抢的限量款。',
+     regret:'要说遗憾,大概是偶尔会冒出"当年再拼一把会咋样"的念头。但这点遗憾轻得像阳台上的一片云,一阵风就吹散了。',
+     comment:'所长想给你鼓个掌。你可能是这整副牌局里活得最通透的人。这世界拼命喊"要成功要出人头地",却很少有人敢告诉你:有人爱、睡得香、心不慌,本身就是赢麻了。你没活成别人朋友圈里的榜样,但你活成了自己心里的安稳。这,真的就够了。',
+     quote:'被生活温柔以待的人,多半也悄悄温柔地对待了生活。'
+   })},
+
+  {name:'家庭稳固型', img:'end_family.png',
+   match:S=>(has(S,'married')&&st(S).r>=66&&st(S).m<60&&!has(S,'kid_naked'))?82+st(S).r/4:-1,
+   card:S=>({
+     sub:'一个没赚大钱、却赢了人心的人。',
+     win:'你存款不算亮眼,但有一个不会散的家。逢年过节满屋子的笑、抢着给你夹菜的手,是你用半生体贴一点点换来的。',
+     regret:'也曾因为钱不够而局促——想给家人更好的,却力不从心的那些时刻,你嘴上不说,心里酸过。',
+     comment:'所长想说:你这才叫真·家底厚。多少人有钱却满屋冰冷,你没多少钱却满屋是暖。一家人愿意围着你转,这玩意儿淘宝没得卖,是你一天天处出来的。穷一点怕啥?你这辈子真正重要的那张资产负债表,是大大的、暖暖的盈余。',
+     quote:'家不是用钱堆出来的,是用一顿顿热饭、一句句软话,熬出来的。'
+   })},
+
+  {name:'大城市漂泊型', img:'end_drift.png',
+   match:S=>((has(S,'bigcity')||has(S,'drift'))&&!has(S,'house')&&st(S).m<55&&!has(S,'married'))?70+st(S).l/3:-1,
+   card:S=>({
+     sub:'一个把最好的年华,押给了一座留不下的城。',
+     win:'你见过这城最亮的灯,也熬过它最冷的夜。你给它添过砖加过瓦,换回一身见识和一句底气十足的"我来过"。',
+     regret:'打拼这么多年,这城里始终没一块真正属于你的地方。你为它发光发热,它却没给你留一扇能挂钥匙的门。',
+     comment:'所长太懂那种"留不下也回不去"的卡顿了。但你听着:你不是失败者,你是先行者。多少人连离开家乡的勇气都没有,你一个人在巨城里扛了这么多年。漂泊不是你的污点,是你的勋章。下一步无论扎根还是回乡,记住——别为了面子硬撑,也别把人弄丢了还心疼那几个钢镚儿。',
+     quote:'有人用一整座城,丈量自己的勇气,哪怕最后两手空空。'
+   })},
+
+  {name:'摆烂躺平型', img:'end_idle.png',
+   match:S=>(any(S,['idle','slack','gap'])&&st(S).m<50&&st(S).h>=55)?68+st(S).h/4:-1,
+   card:S=>({
+     sub:'一个早早退出内卷、活得松弛的人。',
+     win:'你没在不属于你的赛道上把自己跑废。别人为 KPI 失眠时,你睡得四仰八叉。你的快乐很便宜,所以你一直挺富有。',
+     regret:'物质上确实不宽裕,有些想要的只能看看。深夜偶尔也会闪过一句"是不是该再努一把"——然后你翻个身,又睡了。',
+     comment:'所长得替"躺平"正个名:它不等于"废",它是拒绝了一场你压根不想参加的比赛,这反而需要清醒和定力。但所长也多句嘴:松弛是福气,别松到一点余粮都不留——给自己留口饭,躺着才安稳。在"卷死自己"和"彻底烂掉"之间,其实有片很舒服的中间地带,有空去站站,真香。',
+     quote:'不是所有鱼都活在同一片海,你只是选了浅滩,晒太阳。'
+   })},
+
+  {name:'错过机会型', img:'end_missed.png',
+   match:S=>(has(S,'steady')&&!any(S,['biz','bigtech','gov','expand','windfall'])&&st(S).m<52&&st(S).l<52)?60:-1,
+   card:S=>({
+     sub:'一个总在岔路口选"再等等"的人。',
+     win:'你一生求稳,避开了无数坑,也躲过不少雷。没大富大贵,也没大起大落,平平安安走完了全程。',
+     regret:'回头看,有几个本能改命的路口,你都因"风险太大"退了一步。"要是当年上了那趟车……"成了你做得最多的梦。',
+     comment:'所长跟你掏句心窝子的话:谨慎是优点,但"过度谨慎"和"鲁莽"一样,都会让人错过人生。你不是没机会,你只是太怕失去手里那一点点。可你看,稳了一辈子,也未必就攒下了多厚的安全感,对吧?剧本已经写完了,但所长想替下一个你喊一嗓子:有些门,推一下才知道后面是什么——哪怕后面是堵墙,你也踏实了。',
+     quote:'人生最远的距离,是"我本可以"和"我没敢"之间那一步。'
+   })},
+
+  {name:'晚年醒悟型', img:'end_lonely.png',
+   match:S=>(st(S).r<48&&any(S,['alone','cold_home','affair']))?64+(48-st(S).r):-1,
+   card:S=>({
+     sub:'一个走到最后,才读懂"人"这个字的人。',
+     win:'你这一路风风火火,事业、票子、面子,该争的都争过。论本事,你不输牌桌上任何一个。',
+     regret:'只是回头才发现,身边的人一个接一个走散了。空荡荡的屋子提醒你:有些关系,忙着的时候觉得不急,等想起来,早凉透了。',
+     comment:'所长读你这张卡,读到后面有点鼻酸。你不是坏人,你只是把"人"排在"事"后面,排了太多年。但好消息是——你最后醒过来了,这比那些到死都没想明白的人,强太多。关系这东西,只要你肯先低头、先伸手,任何时候开始都不算晚。剩下的日子,把"赢"字搁一边,去把那几个重要的人,一个个重新焐热。',
+     quote:'走到尽头才懂:愿意陪你的人,才是你这辈子真正的家产。'
+   })},
+
+  {name:'意外暴富型', img:'end_lucky.png',
+   match:S=>(has(S,'windfall')&&st(S).m>=80&&!any(S,['biz','expand','allin']))?98+st(S).l/4:-1,
+   card:S=>({
+     sub:'一个被命运随手塞了张彩票的人。',
+     win:'拆迁、升值、横财、贵人……你这辈子的财富,有很大一块是"天上掉下来"的。别人拼了命没够着的,你一脚踩中了。',
+     regret:'但你心里也犯嘀咕:这些钱来得太轻,轻到你有时怀疑,自己到底配不配、守不守得住。',
+     comment:'所长得说句公道话:运气也是实力的一部分——但只是"一部分"。横财来得猛,守不住的话去得更猛,所长见过太多"暴富三年又返贫"的剧本。你这把牌是命好,但能不能打到最后,看的是你接住之后怎么过。别飘,把好运当本钱、别当本事,你这辈子就稳了。话说回来……下辈子能不能分所长点这运气?',
+     quote:'运气是老天爷发的牌,守住,才是你自己打的牌。'
+   })},
+
+  {name:'子女啃老型', img:'end_burden.png',
+   match:S=>has(S,'kid_naked')?86:-1,
+   card:S=>({
+     sub:'一个操劳一辈子,最后还在替孩子兜底的人。',
+     win:'你把孩子拉扯大、供出来,该给的都给了,甚至给了超出你能力的。论"为人父母",你问心无愧。',
+     regret:'可那个长大的孩子,如今心安理得地躺在你给的窝里,花着你的退休金。你又心疼又窝火:这到底是养孩子,还是养了个永远断不了奶的"祖宗"?',
+     comment:'所长这次想说点不中听的:有时候"啃老",是惯出来的——爱过了头,就成了害。你前半生拼命给他遮风挡雨,反倒让他没长出自己的伞。但现在自责也没用,所长给你支一招:爱可以无限,钱包必须有限。该放手时狠下心,不是不爱他,是真正为他好——雏鸟不踹出窝,永远学不会飞。',
+     quote:'父母能给孩子最好的礼物,是让他不再需要你。'
+   })},
+
+  {name:'老来丧偶型', img:'end_widow.png',
+   match:S=>(has(S,'widow')&&st(S).r<62)?84:-1,
+   card:S=>({
+     sub:'一个被命运提前抽走了老伴的人。',
+     win:'你和 TA 携手走过大半生,吵过、累过,也实实在在相爱过。这段感情本身,就是你人生里最沉的一块金子。',
+     regret:'只是没想到,最后这段路要一个人走。厨房里盐放哪儿、夜里谁先关灯,这些 TA 管了一辈子的小事,如今都成了你想 TA 的理由。',
+     comment:'所长不灌你鸡汤,也不说"节哀"这种轻飘飘的话。失去相伴半生的人,那个洞补不上,所长知道。但你替 TA 也得好好活——好好吃饭、好好睡觉、好好看看你俩没看完的风景。想念不是要你停在原地哭,是带着 TA 那份,继续把日子过下去。等哪天你笑着想起 TA 了,就是真的好起来了。',
+     quote:'有些人没法陪你到终点,但能陪你走过的那段,已是一生的厚礼。'
+   })},
+
+  {name:'平凡但不后悔型', img:'end_plain.png',
+   match:S=>50, // 兜底：所有结局都不匹配时落到这里
+   card:S=>({
+     sub:'一个普普通通、却问心无愧的人。',
+     win:'你没成名没暴富,但每个阶段都认真过:该读书时读书,该扛事时扛事,该爱人时爱人。一生平凡,却扎扎实实是你自己一步步走出来的。',
+     regret:'当然有没做成的事、没说出口的话、没去成的地方。但人哪能事事圆满?正是这点小遗憾,让这趟旅程显得真实,不像样板间。',
+     comment:'所长看了这么多人生,最后想跟你说句心里话:别小看"平凡但不后悔"这六个字,这是绝大多数人一辈子都够不着的境界。多少人活得又风光又拧巴,而你活得普通又坦荡。你没辜负手里这副牌,也没辜负你自己。这一局,你不光及格了,还是带着笑、踏踏实实及格的。怎么样——要不要,再活一次试试?',
+     quote:'平凡不可怕,把平凡过得心安理得,才是真本事。'
+   })},
+
+  ];
+})();
+</script>
+</body>
+</html>
+</body>
+</html>
