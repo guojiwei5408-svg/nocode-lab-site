@@ -604,6 +604,7 @@ section {
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
+  margin-top: 10px;
 }
 
 .deduction-grid label {
@@ -613,7 +614,7 @@ section {
 
 .deduction-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 118px;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
   gap: 12px;
   align-items: center;
   min-height: 42px;
@@ -624,19 +625,32 @@ section {
 }
 
 .deduction-row span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+  display: grid;
+  gap: 2px;
   min-width: 0;
+  color: var(--ink);
+  font-weight: 700;
 }
 
-.deduction-row input[type="checkbox"] {
+.deduction-row em {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.deduction-row input[type="checkbox"],
+.deduction-options input[type="checkbox"],
+.deduction-checkline input[type="checkbox"] {
   width: 16px;
   height: 16px;
   flex: 0 0 auto;
 }
 
-.deduction-grid input[type="number"] {
+.deduction-control,
+.deduction-grid input[type="number"],
+.deduction-grid select {
+  width: 100%;
   min-width: 0;
   min-height: 38px;
   border: 1.5px dashed var(--line);
@@ -649,6 +663,59 @@ section {
 
 .deduction-grid input:disabled {
   opacity: 0.55;
+}
+
+.deduction-options {
+  display: grid;
+  gap: 7px;
+}
+
+.deduction-options label,
+.deduction-checkline {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+
+.deduction-row--stack {
+  align-items: start;
+}
+
+.deduction-row--muted {
+  background-color: #f5f0e7;
+}
+
+.deduction-muted-text {
+  color: var(--gray);
+  font-weight: 700;
+  text-align: right;
+}
+
+.deduction-tip {
+  margin: -2px 0 2px;
+  color: var(--orange);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.deduction-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background-color: var(--orange-bg);
+  border: 1.5px dashed var(--orange-soft);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.deduction-total strong {
+  color: var(--orange);
+  white-space: nowrap;
 }
 
 .advanced {
@@ -944,6 +1011,15 @@ section {
   .deduction-row {
     grid-template-columns: 1fr;
     gap: 7px;
+  }
+
+  .deduction-muted-text {
+    text-align: left;
+  }
+
+  .deduction-total {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .salary-bar {

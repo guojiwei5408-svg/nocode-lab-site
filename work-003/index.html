@@ -32,7 +32,7 @@
     </section>
 
     <section class="salary-flow">
-      <form id="salaryForm" class="card salary-form">
+      <form id="salaryForm" class="card salary-form" autocomplete="off">
         <h2 class="card__title">先填这三项</h2>
         <p class="salary-note">默认按税前月薪 10000、北京、公积金 12% 估算，改完自动重算。</p>
 
@@ -80,15 +80,75 @@
           </div>
 
           <div class="deduction-box">
-            <div class="mini-title">专项附加扣除（月度）</div>
+            <div class="mini-title">专项附加扣除（能帮你少扣点税）</div>
+            <p class="salary-note">符合的选一下，没有就跳过，不影响计算。</p>
             <div class="deduction-grid">
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="childEdu" /> 子女教育</span><input id="childEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="babyCare" /> 婴幼儿照护</span><input id="babyCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="continueEdu" /> 继续教育</span><input id="continueEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="mortgage" /> 住房贷款利息</span><input id="mortgage" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="rent" /> 住房租金</span><input id="rent" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="elderCare" /> 赡养老人</span><input id="elderCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
-              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="medical" /> 大病医疗</span><input id="medical" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row">
+                <span>子女教育 <em>孩子在上学，含幼儿园</em></span>
+                <select id="childEduCount" class="deduction-control">
+                  <option value="0">0 个</option>
+                  <option value="1">1 个</option>
+                  <option value="2">2 个</option>
+                  <option value="3">3 个</option>
+                </select>
+              </label>
+
+              <label class="deduction-row">
+                <span>3岁以下婴幼儿照护 <em>家里有小宝宝</em></span>
+                <select id="babyCareCount" class="deduction-control">
+                  <option value="0">0 个</option>
+                  <option value="1">1 个</option>
+                  <option value="2">2 个</option>
+                </select>
+              </label>
+
+              <div class="deduction-row deduction-row--stack">
+                <span>继续教育 <em>读学历或考证</em></span>
+                <div class="deduction-options">
+                  <label><input id="degreeEducation" class="deduction-control" type="checkbox" /> 正在读学历</label>
+                  <label><input id="certificateEducation" class="deduction-control" type="checkbox" /> 今年考下职业资格证</label>
+                </div>
+              </div>
+
+              <div class="deduction-row">
+                <span>住房贷款利息 <em>首套房贷在还</em></span>
+                <label class="deduction-checkline"><input id="mortgageDeduction" class="deduction-control" type="checkbox" /> 有首套房贷</label>
+              </div>
+
+              <label class="deduction-row">
+                <span>住房租金 <em>租房住，按城市档位</em></span>
+                <select id="rentDeduction" class="deduction-control">
+                  <option value="0">不租房</option>
+                  <option value="1500">直辖市及省会等大城市</option>
+                  <option value="1100">市区超100万人口城市</option>
+                  <option value="800">其他城市</option>
+                </select>
+              </label>
+              <p id="housingDeductionTip" class="deduction-tip" hidden>房贷和房租只能享受一个</p>
+
+              <label class="deduction-row">
+                <span>赡养老人 <em>父母满条件时可用</em></span>
+                <select id="elderCareType" class="deduction-control">
+                  <option value="0">不需要</option>
+                  <option value="3000">我是独生子女</option>
+                  <option value="custom">非独生，我分摊</option>
+                </select>
+              </label>
+
+              <label class="deduction-row" id="elderCareCustomRow" hidden>
+                <span>分摊金额 <em>最多 1500/月</em></span>
+                <input id="elderCareCustom" class="deduction-control" type="number" min="0" max="1500" step="100" value="0" />
+              </label>
+
+              <div class="deduction-row deduction-row--muted">
+                <span>大病医疗 <em>年度汇算时适用</em></span>
+                <span class="deduction-muted-text">这里先不计入</span>
+              </div>
+
+              <div class="deduction-total">
+                <span>专项附加扣除合计</span>
+                <strong id="specialDeductionTotal">¥0/月</strong>
+              </div>
             </div>
           </div>
         </details>

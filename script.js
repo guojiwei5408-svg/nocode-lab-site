@@ -265,6 +265,51 @@ function calcTax(taxable) {
   return 0;
 }
 
+function getSpecialDeductionTotal() {
+  var childEdu = readNumber("childEduCount") * 2000;
+  var babyCare = readNumber("babyCareCount") * 2000;
+  var degreeEducation = document.getElementById("degreeEducation");
+  var certificateEducation = document.getElementById("certificateEducation");
+  var mortgageDeduction = document.getElementById("mortgageDeduction");
+  var rentDeduction = document.getElementById("rentDeduction");
+  var elderCareType = document.getElementById("elderCareType");
+  var elderCareCustom = document.getElementById("elderCareCustom");
+  var elderCareCustomRow = document.getElementById("elderCareCustomRow");
+  var housingTip = document.getElementById("housingDeductionTip");
+
+  var education = 0;
+  if (degreeEducation && degreeEducation.checked) education += 400;
+  if (certificateEducation && certificateEducation.checked) education += 300;
+
+  var mortgage = mortgageDeduction && mortgageDeduction.checked ? 1000 : 0;
+  var rent = rentDeduction ? readNumber("rentDeduction") : 0;
+  if (rentDeduction) {
+    rentDeduction.disabled = mortgage > 0;
+    if (mortgage > 0) {
+      rentDeduction.value = "0";
+      rent = 0;
+    }
+  }
+  if (housingTip) housingTip.hidden = mortgage === 0;
+
+  var elderCare = 0;
+  if (elderCareType) {
+    if (elderCareType.value === "3000") {
+      elderCare = 3000;
+      if (elderCareCustomRow) elderCareCustomRow.hidden = true;
+    } else if (elderCareType.value === "custom") {
+      if (elderCareCustomRow) elderCareCustomRow.hidden = false;
+      elderCare = Math.min(readNumber("elderCareCustom"), 1500);
+      if (elderCareCustom && Number(elderCareCustom.value) > 1500) elderCareCustom.value = "1500";
+    } else {
+      if (elderCareCustomRow) elderCareCustomRow.hidden = true;
+      if (elderCareCustom) elderCareCustom.value = "0";
+    }
+  }
+
+  return childEdu + babyCare + education + mortgage + rent + elderCare;
+}
+
 function renderBreakdown(rows) {
   var list = document.getElementById("breakdownList");
   if (!list) return;
@@ -360,11 +405,9 @@ function updateSalaryCalculator() {
   var housingFund = base * fundRate;
   var personalTotal = pension + medical + unemployment + housingFund;
 
-  var deductionTotal = 0;
-  var deductionInputs = document.querySelectorAll(".deduction-input");
-  deductionInputs.forEach(function (input) {
-    if (!input.disabled) deductionTotal += Math.max(0, Number(input.value) || 0);
-  });
+  var deductionTotal = getSpecialDeductionTotal();
+  var specialDeductionTotal = document.getElementById("specialDeductionTotal");
+  if (specialDeductionTotal) specialDeductionTotal.textContent = money(deductionTotal) + "/月";
 
   var taxable = gross - personalTotal - 5000 - deductionTotal;
   var tax = calcTax(taxable);
@@ -440,16 +483,6 @@ function initSalaryCalculator() {
       updateSalaryCalculator();
     });
   }
-
-  document.querySelectorAll(".deduction-check").forEach(function (check) {
-    check.addEventListener("change", function () {
-      var target = document.getElementById(check.getAttribute("data-target"));
-      if (!target) return;
-      target.disabled = !check.checked;
-      if (!check.checked) target.value = 0;
-      updateSalaryCalculator();
-    });
-  });
 
   form.addEventListener("input", updateSalaryCalculator);
   form.addEventListener("change", updateSalaryCalculator);
