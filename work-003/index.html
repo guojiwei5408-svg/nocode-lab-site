@@ -31,17 +31,10 @@
       </p>
     </section>
 
-    <section class="salary-result-card" aria-live="polite">
-      <div>
-        <span class="salary-kicker">每月到手</span>
-        <strong id="takeHomeBig">¥0</strong>
-      </div>
-      <p id="costHighlight">公司每月实际为你花了 ¥0</p>
-    </section>
-
-    <section class="salary-layout">
+    <section class="salary-flow">
       <form id="salaryForm" class="card salary-form">
-        <h2 class="card__title">输入信息</h2>
+        <h2 class="card__title">先填这三项</h2>
+        <p class="salary-note">默认按税前月薪 10000、北京、公积金 12% 估算，改完自动重算。</p>
 
         <label class="field">
           <span>税前月薪</span>
@@ -62,11 +55,6 @@
         </label>
 
         <label class="field">
-          <span>社保/公积金缴费基数</span>
-          <input id="baseSalary" type="number" inputmode="decimal" min="0" step="100" value="10000" />
-        </label>
-
-        <label class="field">
           <span>公积金比例</span>
           <div class="range-row">
             <input id="fundRate" type="range" min="5" max="12" step="1" value="12" />
@@ -74,31 +62,14 @@
           </div>
         </label>
 
-        <div class="deduction-box">
-          <div class="mini-title">专项附加扣除（月度）</div>
-          <div class="deduction-grid">
-            <label><input type="checkbox" class="deduction-check" data-target="childEdu" /> 子女教育</label>
-            <input id="childEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-            <label><input type="checkbox" class="deduction-check" data-target="babyCare" /> 婴幼儿照护</label>
-            <input id="babyCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-            <label><input type="checkbox" class="deduction-check" data-target="continueEdu" /> 继续教育</label>
-            <input id="continueEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-            <label><input type="checkbox" class="deduction-check" data-target="mortgage" /> 住房贷款利息</label>
-            <input id="mortgage" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-            <label><input type="checkbox" class="deduction-check" data-target="rent" /> 住房租金</label>
-            <input id="rent" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-            <label><input type="checkbox" class="deduction-check" data-target="elderCare" /> 赡养老人</label>
-            <input id="elderCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-            <label><input type="checkbox" class="deduction-check" data-target="medical" /> 大病医疗</label>
-            <input id="medical" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
-          </div>
-        </div>
-
         <details class="advanced">
-          <summary>高级设置：比例和基数可调</summary>
+          <summary>高级设置：缴费基数、比例、专项附加扣除</summary>
           <p class="salary-note">比例为参考值，各地不同，可手动调整，以当地实际为准。</p>
 
           <div class="advanced-grid">
+            <label class="field field--compact"><span>社保/公积金缴费基数</span><input id="baseSalary" type="number" inputmode="decimal" min="0" step="100" value="10000" /></label>
+            <label class="field field--compact"><span>基数下限</span><input id="baseMin" type="number" min="0" step="100" value="0" /></label>
+            <label class="field field--compact"><span>基数上限</span><input id="baseMax" type="number" min="0" step="100" value="0" /></label>
             <label class="field field--compact"><span>个人养老 %</span><input id="personalPensionRate" type="number" min="0" step="0.1" value="8" /></label>
             <label class="field field--compact"><span>个人医疗 %</span><input id="personalMedicalRate" type="number" min="0" step="0.1" value="2" /></label>
             <label class="field field--compact"><span>个人失业 %</span><input id="personalUnemploymentRate" type="number" min="0" step="0.1" value="0.5" /></label>
@@ -106,22 +77,50 @@
             <label class="field field--compact"><span>单位医疗 %</span><input id="companyMedicalRate" type="number" min="0" step="0.1" value="10" /></label>
             <label class="field field--compact"><span>单位失业 %</span><input id="companyUnemploymentRate" type="number" min="0" step="0.1" value="0.5" /></label>
             <label class="field field--compact"><span>单位工伤 %</span><input id="companyInjuryRate" type="number" min="0" step="0.1" value="0.5" /></label>
-            <label class="field field--compact"><span>基数下限</span><input id="baseMin" type="number" min="0" step="100" value="0" /></label>
-            <label class="field field--compact"><span>基数上限</span><input id="baseMax" type="number" min="0" step="100" value="0" /></label>
+          </div>
+
+          <div class="deduction-box">
+            <div class="mini-title">专项附加扣除（月度）</div>
+            <div class="deduction-grid">
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="childEdu" /> 子女教育</span><input id="childEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="babyCare" /> 婴幼儿照护</span><input id="babyCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="continueEdu" /> 继续教育</span><input id="continueEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="mortgage" /> 住房贷款利息</span><input id="mortgage" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="rent" /> 住房租金</span><input id="rent" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="elderCare" /> 赡养老人</span><input id="elderCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+              <label class="deduction-row"><span><input type="checkbox" class="deduction-check" data-target="medical" /> 大病医疗</span><input id="medical" class="deduction-input" type="number" min="0" step="100" value="0" disabled /></label>
+            </div>
           </div>
         </details>
       </form>
 
-      <section class="card salary-breakdown">
-        <h2 class="card__title">扣除明细</h2>
-        <div id="breakdownList" class="breakdown-list"></div>
-        <div id="barChart" class="salary-bars" aria-label="工资构成条形图"></div>
-      </section>
-    </section>
+      <section class="salary-result-card" aria-live="polite">
+        <div class="salary-main-number">
+          <span class="salary-kicker">每月到手</span>
+          <strong id="takeHomeBig">¥7,667.50</strong>
+        </div>
 
-    <section class="card director-card">
-      <h2 class="card__title">所长点评</h2>
-      <p id="directorComment">该扣的都扣了，剩下的就是你的。省着点，也别太亏待自己。</p>
+        <div class="salary-breakdown">
+          <h2 class="card__title">扣除明细</h2>
+          <div id="breakdownList" class="breakdown-list">
+            <div class="breakdown-row"><span>税前月薪</span><strong>¥10,000</strong></div>
+            <div class="breakdown-row"><span>养老保险</span><strong>¥800</strong></div>
+            <div class="breakdown-row"><span>医疗保险</span><strong>¥200</strong></div>
+            <div class="breakdown-row"><span>失业保险</span><strong>¥50</strong></div>
+            <div class="breakdown-row"><span>住房公积金</span><strong>¥1,200</strong></div>
+            <div class="breakdown-row"><span>个人所得税</span><strong>¥82.50</strong></div>
+            <div class="breakdown-row is-total"><span>每月到手</span><strong>¥7,667.50</strong></div>
+          </div>
+          <div id="barChart" class="salary-bars" aria-label="工资构成条形图"></div>
+        </div>
+
+        <p id="costHighlight" class="salary-cost-line">公司每月实际为你花了 ¥13,900</p>
+
+        <div class="director-card">
+          <h2 class="card__title">所长点评</h2>
+          <p id="directorComment">公司为你花了 ¥13,900，你揣回家 ¥7,667.50。中间差的那截，你也看见了。</p>
+        </div>
+      </section>
     </section>
 
     <section class="card">

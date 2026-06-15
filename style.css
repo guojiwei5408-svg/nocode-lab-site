@@ -468,20 +468,30 @@ section {
   padding-bottom: 14px;
 }
 
+.salary-flow {
+  display: grid;
+  gap: 18px;
+}
+
 .salary-result-card {
-  background-color: #2f2a24;
-  color: #fff7ec;
+  background-color: var(--bg-card);
+  border: 1.5px dashed var(--line);
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
   gap: 18px;
-  flex-wrap: wrap;
 }
 
-.salary-result-card strong {
+.salary-main-number {
+  background-color: #2f2a24;
+  color: #fff7ec;
+  border-radius: 12px;
+  padding: 22px;
+  text-align: center;
+}
+
+.salary-main-number strong {
   display: block;
   font-size: 2.4rem;
   line-height: 1.12;
@@ -495,13 +505,14 @@ section {
   margin-bottom: 4px;
 }
 
-.salary-result-card p {
-  background-color: rgba(255, 253, 248, 0.1);
-  border: 1px dashed rgba(246, 178, 122, 0.55);
+.salary-cost-line {
+  background-color: var(--orange-bg);
+  border: 1.5px dashed var(--orange-soft);
   border-radius: 10px;
-  padding: 10px 12px;
-  color: #fff7ec;
+  padding: 12px 14px;
+  color: var(--orange);
   font-weight: 700;
+  text-align: center;
 }
 
 .salary-layout {
@@ -514,6 +525,10 @@ section {
 .salary-form,
 .salary-breakdown {
   margin: 0;
+}
+
+.salary-form {
+  display: grid;
 }
 
 .field {
@@ -531,6 +546,7 @@ section {
 .field input,
 .field select {
   width: 100%;
+  min-width: 0;
   min-height: 44px;
   border: 1.5px dashed var(--line);
   border-radius: 10px;
@@ -559,6 +575,7 @@ section {
 }
 
 .range-row input {
+  min-width: 0;
   padding: 0;
 }
 
@@ -585,14 +602,38 @@ section {
 
 .deduction-grid {
   display: grid;
-  grid-template-columns: minmax(130px, 1fr) 112px;
-  gap: 10px;
-  align-items: center;
+  grid-template-columns: 1fr;
+  gap: 8px;
 }
 
 .deduction-grid label {
   color: var(--ink-soft);
   font-size: 0.92rem;
+}
+
+.deduction-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 118px;
+  gap: 12px;
+  align-items: center;
+  min-height: 42px;
+  border: 1px dashed rgba(216, 205, 184, 0.75);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background-color: #fffaf1;
+}
+
+.deduction-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.deduction-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
 }
 
 .deduction-grid input[type="number"] {
@@ -620,11 +661,16 @@ section {
   cursor: pointer;
   color: var(--orange);
   font-weight: 800;
+  list-style-position: inside;
+  padding: 10px 12px;
+  border: 1.5px dashed var(--orange-soft);
+  border-radius: 10px;
+  background-color: #fff7ec;
 }
 
 .advanced-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-top: 14px;
 }
@@ -668,7 +714,7 @@ section {
 
 .salary-bar {
   display: grid;
-  grid-template-columns: 64px 1fr 74px;
+  grid-template-columns: 64px minmax(0, 1fr) minmax(74px, max-content);
   gap: 8px;
   align-items: center;
   font-size: 0.86rem;
@@ -676,10 +722,16 @@ section {
 }
 
 .salary-bar__track {
+  min-width: 0;
   height: 12px;
   border-radius: 999px;
   background-color: #efece6;
   overflow: hidden;
+}
+
+.salary-bar strong {
+  white-space: nowrap;
+  text-align: right;
 }
 
 .salary-bar__fill {
@@ -695,7 +747,9 @@ section {
 
 .director-card {
   background-color: var(--orange-bg);
-  border-color: var(--orange-soft);
+  border: 1.5px dashed var(--orange-soft);
+  border-radius: 12px;
+  padding: 16px;
 }
 
 .director-card p {
@@ -883,12 +937,16 @@ section {
     grid-template-columns: 1fr;
   }
 
-  .advanced-grid,
-  .deduction-grid {
+  .advanced-grid {
     grid-template-columns: 1fr;
   }
 
+  .deduction-row {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
   .salary-bar {
-    grid-template-columns: 54px 1fr 68px;
+    grid-template-columns: 48px minmax(0, 1fr) minmax(78px, max-content);
   }
 }
