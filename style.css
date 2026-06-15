@@ -462,6 +462,249 @@ section {
 }
 
 /* ===========================================================
+   工资到手计算器 work-003
+   =========================================================== */
+.salary-hero {
+  padding-bottom: 14px;
+}
+
+.salary-result-card {
+  background-color: #2f2a24;
+  color: #fff7ec;
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.salary-result-card strong {
+  display: block;
+  font-size: 2.4rem;
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.salary-kicker {
+  display: block;
+  color: #f6d5b8;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.salary-result-card p {
+  background-color: rgba(255, 253, 248, 0.1);
+  border: 1px dashed rgba(246, 178, 122, 0.55);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #fff7ec;
+  font-weight: 700;
+}
+
+.salary-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.95fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.salary-form,
+.salary-breakdown {
+  margin: 0;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.field span {
+  font-size: 0.92rem;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 44px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  padding: 9px 11px;
+  background-color: var(--bg-card);
+  color: var(--ink);
+  font: inherit;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--orange-soft);
+  box-shadow: 0 0 0 3px rgba(232, 119, 46, 0.12);
+}
+
+.field--compact {
+  margin-top: 0;
+}
+
+.range-row {
+  display: grid;
+  grid-template-columns: 1fr 54px;
+  gap: 10px;
+  align-items: center;
+}
+
+.range-row input {
+  padding: 0;
+}
+
+.range-row output {
+  min-height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background-color: var(--orange-bg);
+  color: var(--orange);
+  font-weight: 800;
+}
+
+.deduction-box {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.mini-title {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.deduction-grid {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) 112px;
+  gap: 10px;
+  align-items: center;
+}
+
+.deduction-grid label {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.deduction-grid input[type="number"] {
+  min-width: 0;
+  min-height: 38px;
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  padding: 7px 9px;
+  background-color: var(--bg-card);
+  color: var(--ink);
+  font: inherit;
+}
+
+.deduction-grid input:disabled {
+  opacity: 0.55;
+}
+
+.advanced {
+  margin-top: 18px;
+  border-top: 1px dashed var(--line);
+  padding-top: 14px;
+}
+
+.advanced summary {
+  cursor: pointer;
+  color: var(--orange);
+  font-weight: 800;
+}
+
+.advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.salary-note {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.breakdown-list {
+  margin-top: 16px;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px dashed rgba(216, 205, 184, 0.8);
+}
+
+.breakdown-row span {
+  color: var(--ink-soft);
+}
+
+.breakdown-row strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.breakdown-row.is-total strong {
+  color: var(--orange);
+  font-size: 1.12rem;
+}
+
+.salary-bars {
+  margin-top: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.salary-bar {
+  display: grid;
+  grid-template-columns: 64px 1fr 74px;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+}
+
+.salary-bar__track {
+  height: 12px;
+  border-radius: 999px;
+  background-color: #efece6;
+  overflow: hidden;
+}
+
+.salary-bar__fill {
+  height: 100%;
+  width: var(--bar-width);
+  min-width: 2px;
+  border-radius: 999px;
+  background-color: var(--orange);
+}
+
+.salary-bar:nth-child(2) .salary-bar__fill { background-color: #5c9e6f; }
+.salary-bar:nth-child(3) .salary-bar__fill { background-color: #8c7a67; }
+
+.director-card {
+  background-color: var(--orange-bg);
+  border-color: var(--orange-soft);
+}
+
+.director-card p {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ===========================================================
    关于页 about.html
    =========================================================== */
 .creed-wall {
@@ -627,4 +870,25 @@ section {
   .creed { font-size: 1.1rem; }
 
   .decider__result { font-size: 1.1rem; }
+
+  .salary-result-card {
+    padding: 20px;
+  }
+
+  .salary-result-card strong {
+    font-size: 2rem;
+  }
+
+  .salary-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .advanced-grid,
+  .deduction-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .salary-bar {
+    grid-template-columns: 54px 1fr 68px;
+  }
 }

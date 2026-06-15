@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>003 工资到手计算器 · 不会代码研究所</title>
+  <meta name="description" content="输入税前月薪，估算五险一金、个税、每月到手和公司实际用工成本。" />
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav__brand" href="../index.html">🧪 不会代码研究所</a>
+      <ul class="nav__links">
+        <li><a href="../index.html">首页</a></li>
+        <li><a href="../works.html" class="is-active">作品</a></li>
+        <li><a href="../about.html">关于</a></li>
+        <li><a href="../inspiration.html">灵感停车场</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="wrap">
+
+    <section class="hero salary-hero">
+      <span class="work-no-badge">003</span>
+      <h1 class="hero__title" style="margin-top:14px;">工资到手计算器</h1>
+      <p class="hero__subtitle">
+        税前、五险一金、个税、到手和公司成本，一页算清楚。
+      </p>
+    </section>
+
+    <section class="salary-result-card" aria-live="polite">
+      <div>
+        <span class="salary-kicker">每月到手</span>
+        <strong id="takeHomeBig">¥0</strong>
+      </div>
+      <p id="costHighlight">公司每月实际为你花了 ¥0</p>
+    </section>
+
+    <section class="salary-layout">
+      <form id="salaryForm" class="card salary-form">
+        <h2 class="card__title">输入信息</h2>
+
+        <label class="field">
+          <span>税前月薪</span>
+          <input id="grossSalary" type="number" inputmode="decimal" min="0" step="100" value="10000" />
+        </label>
+
+        <label class="field">
+          <span>城市</span>
+          <select id="city">
+            <option value="beijing">北京</option>
+            <option value="shanghai">上海</option>
+            <option value="guangzhou">广州</option>
+            <option value="shenzhen">深圳</option>
+            <option value="chengdu">成都</option>
+            <option value="hangzhou">杭州</option>
+            <option value="custom">自定义</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>社保/公积金缴费基数</span>
+          <input id="baseSalary" type="number" inputmode="decimal" min="0" step="100" value="10000" />
+        </label>
+
+        <label class="field">
+          <span>公积金比例</span>
+          <div class="range-row">
+            <input id="fundRate" type="range" min="5" max="12" step="1" value="12" />
+            <output id="fundRateText">12%</output>
+          </div>
+        </label>
+
+        <div class="deduction-box">
+          <div class="mini-title">专项附加扣除（月度）</div>
+          <div class="deduction-grid">
+            <label><input type="checkbox" class="deduction-check" data-target="childEdu" /> 子女教育</label>
+            <input id="childEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+            <label><input type="checkbox" class="deduction-check" data-target="babyCare" /> 婴幼儿照护</label>
+            <input id="babyCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+            <label><input type="checkbox" class="deduction-check" data-target="continueEdu" /> 继续教育</label>
+            <input id="continueEdu" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+            <label><input type="checkbox" class="deduction-check" data-target="mortgage" /> 住房贷款利息</label>
+            <input id="mortgage" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+            <label><input type="checkbox" class="deduction-check" data-target="rent" /> 住房租金</label>
+            <input id="rent" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+            <label><input type="checkbox" class="deduction-check" data-target="elderCare" /> 赡养老人</label>
+            <input id="elderCare" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+            <label><input type="checkbox" class="deduction-check" data-target="medical" /> 大病医疗</label>
+            <input id="medical" class="deduction-input" type="number" min="0" step="100" value="0" disabled />
+          </div>
+        </div>
+
+        <details class="advanced">
+          <summary>高级设置：比例和基数可调</summary>
+          <p class="salary-note">比例为参考值，各地不同，可手动调整，以当地实际为准。</p>
+
+          <div class="advanced-grid">
+            <label class="field field--compact"><span>个人养老 %</span><input id="personalPensionRate" type="number" min="0" step="0.1" value="8" /></label>
+            <label class="field field--compact"><span>个人医疗 %</span><input id="personalMedicalRate" type="number" min="0" step="0.1" value="2" /></label>
+            <label class="field field--compact"><span>个人失业 %</span><input id="personalUnemploymentRate" type="number" min="0" step="0.1" value="0.5" /></label>
+            <label class="field field--compact"><span>单位养老 %</span><input id="companyPensionRate" type="number" min="0" step="0.1" value="16" /></label>
+            <label class="field field--compact"><span>单位医疗 %</span><input id="companyMedicalRate" type="number" min="0" step="0.1" value="10" /></label>
+            <label class="field field--compact"><span>单位失业 %</span><input id="companyUnemploymentRate" type="number" min="0" step="0.1" value="0.5" /></label>
+            <label class="field field--compact"><span>单位工伤 %</span><input id="companyInjuryRate" type="number" min="0" step="0.1" value="0.5" /></label>
+            <label class="field field--compact"><span>基数下限</span><input id="baseMin" type="number" min="0" step="100" value="0" /></label>
+            <label class="field field--compact"><span>基数上限</span><input id="baseMax" type="number" min="0" step="100" value="0" /></label>
+          </div>
+        </details>
+      </form>
+
+      <section class="card salary-breakdown">
+        <h2 class="card__title">扣除明细</h2>
+        <div id="breakdownList" class="breakdown-list"></div>
+        <div id="barChart" class="salary-bars" aria-label="工资构成条形图"></div>
+      </section>
+    </section>
+
+    <section class="card director-card">
+      <h2 class="card__title">所长点评</h2>
+      <p id="directorComment">该扣的都扣了，剩下的就是你的。省着点，也别太亏待自己。</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card__title">说明</h2>
+      <p class="salary-note">
+        本工具为估算，各地社保比例/基数不同，个税按全年累计预扣会有差异，仅供参考，以实际发放为准。
+      </p>
+    </section>
+
+    <section style="text-align:center;">
+      <a class="btn btn--ghost" href="../works.html">← 返回作品列表</a>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p class="creed-mini">该算清楚的，就别让它糊着。</p>
+    <p>© 2026 不会代码研究所</p>
+  </footer>
+
+  <script src="../script.js"></script>
+</body>
+</html>

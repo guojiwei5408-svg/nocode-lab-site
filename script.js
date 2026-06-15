@@ -211,9 +211,256 @@ function initParking() {
 }
 
 /* -----------------------------------------------------------
+   第三部分：工资到手计算器（work-003）
+   ----------------------------------------------------------- */
+
+var SALARY_CITY_PRESETS = {
+  beijing: { label: "北京", baseMin: 0, baseMax: 0 },
+  shanghai: { label: "上海", baseMin: 0, baseMax: 0 },
+  guangzhou: { label: "广州", baseMin: 0, baseMax: 0 },
+  shenzhen: { label: "深圳", baseMin: 0, baseMax: 0 },
+  chengdu: { label: "成都", baseMin: 0, baseMax: 0 },
+  hangzhou: { label: "杭州", baseMin: 0, baseMax: 0 },
+  custom: { label: "自定义", baseMin: 0, baseMax: 0 }
+};
+
+var TAX_BRACKETS = [
+  { limit: 3000, rate: 0.03, quick: 0 },
+  { limit: 12000, rate: 0.10, quick: 210 },
+  { limit: 25000, rate: 0.20, quick: 1410 },
+  { limit: 35000, rate: 0.25, quick: 2660 },
+  { limit: 55000, rate: 0.30, quick: 4410 },
+  { limit: 80000, rate: 0.35, quick: 7160 },
+  { limit: Infinity, rate: 0.45, quick: 15160 }
+];
+
+function money(n) {
+  var value = Math.max(0, Number(n) || 0);
+  return "¥" + value.toLocaleString("zh-CN", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: value % 1 === 0 ? 0 : 2
+  });
+}
+
+function readNumber(id) {
+  var el = document.getElementById(id);
+  if (!el) return 0;
+  return Math.max(0, Number(el.value) || 0);
+}
+
+function clampBase(base, min, max) {
+  var result = base;
+  if (min > 0) result = Math.max(result, min);
+  if (max > 0) result = Math.min(result, max);
+  return result;
+}
+
+function calcTax(taxable) {
+  if (taxable <= 0) return 0;
+  for (var i = 0; i < TAX_BRACKETS.length; i++) {
+    if (taxable <= TAX_BRACKETS[i].limit) {
+      return Math.max(0, taxable * TAX_BRACKETS[i].rate - TAX_BRACKETS[i].quick);
+    }
+  }
+  return 0;
+}
+
+function renderBreakdown(rows) {
+  var list = document.getElementById("breakdownList");
+  if (!list) return;
+  list.innerHTML = "";
+  rows.forEach(function (row) {
+    var item = document.createElement("div");
+    item.className = "breakdown-row" + (row.total ? " is-total" : "");
+
+    var label = document.createElement("span");
+    label.textContent = row.label;
+
+    var amount = document.createElement("strong");
+    amount.textContent = money(row.value);
+
+    item.appendChild(label);
+    item.appendChild(amount);
+    list.appendChild(item);
+  });
+}
+
+function renderBars(items, gross) {
+  var chart = document.getElementById("barChart");
+  if (!chart) return;
+  chart.innerHTML = "";
+
+  var max = Math.max(gross, 1);
+  items.forEach(function (item) {
+    var row = document.createElement("div");
+    row.className = "salary-bar";
+
+    var label = document.createElement("span");
+    label.textContent = item.label;
+
+    var track = document.createElement("div");
+    track.className = "salary-bar__track";
+
+    var fill = document.createElement("div");
+    fill.className = "salary-bar__fill";
+    fill.style.setProperty("--bar-width", Math.min(100, item.value / max * 100) + "%");
+
+    var amount = document.createElement("strong");
+    amount.textContent = money(item.value);
+
+    track.appendChild(fill);
+    row.appendChild(label);
+    row.appendChild(track);
+    row.appendChild(amount);
+    chart.appendChild(row);
+  });
+}
+
+function pickDirectorComment(data) {
+  var takeHomeText = money(data.takeHome);
+  var totalDeductText = money(data.personalTotal + data.tax);
+  var companyCostText = money(data.companyCost);
+  var ratio = data.gross > 0 ? data.takeHome / data.gross : 0;
+  var costRatio = data.takeHome > 0 ? data.companyCost / data.takeHome : 0;
+  var deductRatio = data.gross > 0 ? (data.personalTotal + data.tax) / data.gross : 0;
+  var fundRatio = data.gross > 0 ? data.housingFund / data.gross : 0;
+
+  if (costRatio >= 1.55) {
+    return "公司为你花了 " + companyCostText + "，你揣回家 " + takeHomeText + "。中间差的那截，你也看见了。";
+  }
+  if (deductRatio >= 0.28 || data.tax >= 3000) {
+    return "光五险一金加个税就走了 " + totalDeductText + "。交得多，往后领得也多——先这么想着。";
+  }
+  if (fundRatio >= 0.1 && data.housingFund >= 1000) {
+    return "公积金扣了不少，不过那是你自己的钱，换个兜装着，买房能用上。";
+  }
+  if (ratio >= 0.8) {
+    return "扣得不算多，到手还行。这个月，稳了。";
+  }
+  if (ratio >= 0.65 && ratio <= 0.8) {
+    return "忙活一个月，到手 " + takeHomeText + "。不多不少，够过日子。打工人，辛苦了。";
+  }
+  if (data.takeHome > 0 && data.takeHome < 5000) {
+    return "到手 " + takeHomeText + "，是不多。但每一分都是你自己挣的，踏实。";
+  }
+  return "该扣的都扣了，剩下的就是你的。省着点，也别太亏待自己。";
+}
+
+function updateSalaryCalculator() {
+  var gross = readNumber("grossSalary");
+  var rawBase = readNumber("baseSalary");
+  var baseMin = readNumber("baseMin");
+  var baseMax = readNumber("baseMax");
+  var base = clampBase(rawBase || gross, baseMin, baseMax);
+  var fundRate = readNumber("fundRate") / 100;
+
+  var pension = base * readNumber("personalPensionRate") / 100;
+  var medical = base * readNumber("personalMedicalRate") / 100;
+  var unemployment = base * readNumber("personalUnemploymentRate") / 100;
+  var housingFund = base * fundRate;
+  var personalTotal = pension + medical + unemployment + housingFund;
+
+  var deductionTotal = 0;
+  var deductionInputs = document.querySelectorAll(".deduction-input");
+  deductionInputs.forEach(function (input) {
+    if (!input.disabled) deductionTotal += Math.max(0, Number(input.value) || 0);
+  });
+
+  var taxable = gross - personalTotal - 5000 - deductionTotal;
+  var tax = calcTax(taxable);
+  var takeHome = Math.max(0, gross - personalTotal - tax);
+
+  var companyTotal =
+    base * readNumber("companyPensionRate") / 100 +
+    base * readNumber("companyMedicalRate") / 100 +
+    base * readNumber("companyUnemploymentRate") / 100 +
+    base * readNumber("companyInjuryRate") / 100 +
+    base * fundRate;
+  var companyCost = gross + companyTotal;
+
+  document.getElementById("takeHomeBig").textContent = money(takeHome);
+  document.getElementById("costHighlight").textContent = "公司每月实际为你花了 " + money(companyCost);
+  document.getElementById("fundRateText").textContent = Math.round(fundRate * 100) + "%";
+
+  renderBreakdown([
+    { label: "税前月薪", value: gross },
+    { label: "养老保险", value: pension },
+    { label: "医疗保险", value: medical },
+    { label: "失业保险", value: unemployment },
+    { label: "住房公积金", value: housingFund },
+    { label: "个人所得税", value: tax },
+    { label: "每月到手", value: takeHome, total: true }
+  ]);
+
+  renderBars([
+    { label: "到手", value: takeHome },
+    { label: "五险一金", value: personalTotal },
+    { label: "个税", value: tax }
+  ], gross);
+
+  var comment = document.getElementById("directorComment");
+  if (comment) {
+    comment.textContent = pickDirectorComment({
+      gross: gross,
+      takeHome: takeHome,
+      personalTotal: personalTotal,
+      tax: tax,
+      housingFund: housingFund,
+      companyCost: companyCost
+    });
+  }
+}
+
+function initSalaryCalculator() {
+  var form = document.getElementById("salaryForm");
+  if (!form) return;
+
+  var gross = document.getElementById("grossSalary");
+  var base = document.getElementById("baseSalary");
+  var city = document.getElementById("city");
+  var baseTouched = false;
+
+  if (base) {
+    base.addEventListener("input", function () {
+      baseTouched = true;
+    });
+  }
+
+  if (gross) {
+    gross.addEventListener("input", function () {
+      if (base && !baseTouched) base.value = gross.value;
+    });
+  }
+
+  if (city) {
+    city.addEventListener("change", function () {
+      var preset = SALARY_CITY_PRESETS[city.value] || SALARY_CITY_PRESETS.custom;
+      document.getElementById("baseMin").value = preset.baseMin;
+      document.getElementById("baseMax").value = preset.baseMax;
+      updateSalaryCalculator();
+    });
+  }
+
+  document.querySelectorAll(".deduction-check").forEach(function (check) {
+    check.addEventListener("change", function () {
+      var target = document.getElementById(check.getAttribute("data-target"));
+      if (!target) return;
+      target.disabled = !check.checked;
+      if (!check.checked) target.value = 0;
+      updateSalaryCalculator();
+    });
+  });
+
+  form.addEventListener("input", updateSalaryCalculator);
+  form.addEventListener("change", updateSalaryCalculator);
+  updateSalaryCalculator();
+}
+
+/* -----------------------------------------------------------
    启动
    ----------------------------------------------------------- */
 document.addEventListener("DOMContentLoaded", function () {
   initDecider();
   initParking();
+  initSalaryCalculator();
 });
