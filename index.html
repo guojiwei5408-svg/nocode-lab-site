@@ -3,80 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>不会代码研究所</title>
-  <meta name="description" content="一个不会代码、不会剪辑、不会做自媒体的普通人，用 AI 做没啥用但很好玩的小东西。" />
+  <title>不会代码实验室</title>
+  <meta name="description" content="不会代码实验室：不会代码，也能用 AI 做点真东西。" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <canvas id="signalCanvas" aria-hidden="true"></canvas>
 
-  <!-- 顶部导航 -->
   <header class="site-header">
-    <nav class="nav">
-      <a class="nav__brand" href="index.html">🧪 不会代码研究所</a>
+    <nav class="nav" aria-label="主导航">
+      <a class="nav__brand" href="#home" aria-label="返回首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img">
+            <path d="M9 3h6v2h-1v5.2l5.7 8.6A1.4 1.4 0 0 1 18.5 21h-13a1.4 1.4 0 0 1-1.2-2.2L10 10.2V5H9V3Zm3 8-5.2 8h10.4L12 11Zm-2 4h4l1.3 2H8.7L10 15Z"/>
+          </svg>
+        </span>
+        不会代码实验室
+      </a>
+      <button class="nav__toggle" type="button" aria-label="打开导航" aria-expanded="false">
+        <span></span>
+        <span></span>
+      </button>
       <ul class="nav__links">
-        <li><a href="index.html" class="is-active">首页</a></li>
-        <li><a href="works.html">作品</a></li>
-        <li><a href="about.html">关于</a></li>
-        <li><a href="inspiration.html">灵感停车场</a></li>
+        <li><a href="#home" class="is-active">首页</a></li>
+        <li><a href="#about">关于</a></li>
+        <li><a href="#lab">实验区</a></li>
+        <li><a href="#co-create">共创</a></li>
       </ul>
     </nav>
   </header>
 
-  <main class="wrap">
-
-    <!-- 首屏 -->
-    <section class="hero">
-      <span class="hero__badge">研究所大门 · 2026 第一版</span>
-      <h1 class="hero__title">不会代码研究所</h1>
-      <p class="hero__subtitle">
-        一个不会代码、不会剪辑、不会做自媒体的普通人，用 AI 做没啥用但很好玩的小东西。
-      </p>
-    </section>
-
-    <!-- 三个主要入口 -->
-    <section class="grid-3">
-      <a class="entry" href="work-001.html">
-        <span class="entry__emoji">🕹</span>
-        <span class="entry__label">玩点东西</span>
-        <span class="entry__desc">去体验研究所的小作品</span>
-      </a>
-      <a class="entry" href="about.html">
-        <span class="entry__emoji">📖</span>
-        <span class="entry__label">看看所长今天学了什么</span>
-        <span class="entry__desc">研究所是怎么回事</span>
-      </a>
-      <a class="entry" href="inspiration.html">
-        <span class="entry__emoji">💡</span>
-        <span class="entry__label">留个脑洞</span>
-        <span class="entry__desc">把想法停进灵感停车场</span>
-      </a>
-    </section>
-
-    <!-- 最新作品入口 -->
-    <section>
-      <div class="latest">
-        <div class="latest__text">
-          <div class="tag tag--live">最新作品 · 001</div>
-          <p style="margin-top:8px;">
-            <strong>《所长决定器》</strong>　不知道今天研究什么？让所长帮你抽一个。
+  <main>
+    <section id="home" class="section hero-section">
+      <div class="hero-shell">
+        <div class="hero-copy reveal">
+          <p class="eyebrow">AI PRACTICE LAB · BY LAOGUO</p>
+          <h1 class="hero-title">
+            <span>不会代码</span>
+            <span>实验室</span>
+          </h1>
+          <p class="hero-slogan">不会代码，也能用 AI 做点真东西。</p>
+          <p id="heroIntro" class="hero-intro">
+            我是老郭，33 岁，接触 AI 才一个多月，也不会写代码。但不耽误我用它做点东西，把过程、翻车和结果都摆出来。
           </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#lab">
+              <span>查看实验区</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 5l7 7-7 7-1.4-1.4 4.6-4.6H4v-2h12.2l-4.6-4.6L13 5Z"/></svg>
+            </a>
+          </div>
         </div>
-        <a class="btn" href="work-001.html">去体验 →</a>
+
+        <div class="hero-visual reveal" aria-label="实验室信号面板">
+          <div class="terminal-panel">
+            <div class="terminal-top">
+              <span></span><span></span><span></span>
+              <strong>lab-runner.local</strong>
+            </div>
+            <div class="terminal-body">
+              <p data-type-text="$ start ai_lab --mode practical"></p>
+              <p class="line-ok" data-type-text="status: recording real experiments"></p>
+              <p data-type-text="input: ordinary person + AI tools"></p>
+              <p data-type-text="output: small web apps / videos / lessons"></p>
+              <p class="line-warn" data-type-text="rule: ship first, polish later"></p>
+            </div>
+          </div>
+          <div class="metrics-strip">
+            <div><b id="worksCount">0</b><span>边学边做</span></div>
+            <a class="metric-idea-card" href="#co-create" aria-label="给老郭一个想法，跳转到共创区">
+              <b>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-8-8 18-2-7-8-3Zm5.3-.2 3.8 1.2 1.2 3.8 3.6-8.9-8.6 3.9Z"/></svg>
+              </b>
+              <span>给老郭一个想法</span>
+            </a>
+            <div class="metric-progress-card">
+              <b id="masterProgress">1%</b>
+              <span>距离大神进度</span>
+              <i class="metric-progress" aria-hidden="true"><em id="masterProgressBar"></em></i>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- 核心理念 -->
-    <section class="creed">
-      “先开门，再装修。”
+    <section id="about" class="section about-section">
+      <div class="section-head reveal">
+        <p class="eyebrow">ABOUT</p>
+        <h2 class="about-title">这是一个普通人开始的地方</h2>
+      </div>
+      <div class="about-grid">
+        <article class="text-block reveal">
+          <h3>老郭是谁</h3>
+          <p>33 岁，刚接触 AI 一个多月，不会写代码，也不是技术大神。以前很多想法停在嘴上，现在想试试：靠 AI 能不能把它们做成能点、能用、能展示的小东西。</p>
+        </article>
+        <article class="text-block reveal">
+          <h3>为什么做实验室</h3>
+          <p>因为很多人不是不想学 AI，而是不知道从哪开始。这个实验室不讲空话，也不装专业。每个实验尽量留下过程：用了什么工具、哪里卡住、最后怎么解决。</p>
+        </article>
+        <article class="text-block reveal">
+          <h3>想干嘛</h3>
+          <p>用 AI 做点真东西，哪怕一开始很小、很粗糙。然后把这些东西变成视频、网页、记录，带刚接触或者还没接触 AI 的人一起往前走一步。</p>
+        </article>
+      </div>
     </section>
 
+    <section id="lab" class="section lab-section">
+      <div class="section-head reveal">
+        <p class="eyebrow">EXPERIMENTS</p>
+        <h2>实验区正在搭建</h2>
+        <p>第一个作品马上上线。这里以后放真正能打开、能试玩、能复盘的 AI 小实验。</p>
+      </div>
+      <div class="experiment-grid">
+        <article class="experiment-card reveal">
+          <span class="card-index">001</span>
+          <h3>作品集</h3>
+          <p>配合每条视频做出来的东西，都收在这——能打开、能看的小作品。</p>
+          <strong>搭建中</strong>
+        </article>
+        <article class="experiment-card reveal">
+          <span class="card-index">002</span>
+          <h3>实用工具</h3>
+          <p>从作品集里挑出真能用的，能在线直接用、也能下载到电脑；之后同步到小程序「不会代码工具箱」。</p>
+          <strong>准备中</strong>
+        </article>
+        <article class="experiment-card reveal">
+          <span class="card-index">003</span>
+          <h3>翻车复盘</h3>
+          <p>做不成也会留下来。失败比包装过的成功更适合普通人参考。</p>
+          <strong>排队中</strong>
+        </article>
+      </div>
+    </section>
+
+    <section id="co-create" class="section co-section">
+      <div class="co-panel reveal">
+        <div>
+          <p class="eyebrow">CO-CREATE</p>
+          <h2>你想让我用 AI 做什么？</h2>
+          <p>可以是一个网页、一个小工具、一个脑洞、一个你觉得普通人也该用上的功能。投稿系统还没接好，先放一个占位入口。</p>
+        </div>
+        <button id="submitIdeaBtn" class="btn btn-primary" type="button">
+          <span>告诉老郭一个想法</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 18-8-8 18-2-7-8-3Zm5.3-.2 3.8 1.2 1.2 3.8 3.6-8.9-8.6 3.9Z"/></svg>
+        </button>
+      </div>
+    </section>
   </main>
 
-  <!-- 页脚 -->
   <footer class="site-footer">
-    <p class="creed-mini">研究所一直开着。</p>
-    <p>© 2026 不会代码研究所 · 简单大于复杂 · 完成大于计划</p>
+    <p>网站备案中，即将正式上线</p>
+    <p>© 2026 不会代码实验室 · 老郭和他的 AI 实验记录</p>
   </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">投稿功能马上开放</div>
 
   <script src="script.js"></script>
 </body>
