@@ -357,6 +357,9 @@ h3 {
   display: block;
   width: 100%;
   max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   border-radius: 36px;
   box-shadow: var(--shadow);
   transform:
