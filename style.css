@@ -358,8 +358,6 @@ h3 {
   width: 100%;
   max-width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
   border-radius: 36px;
   box-shadow: var(--shadow);
   transform:
@@ -820,7 +818,14 @@ h3 {
   }
 
   .hero__visual img {
+    width: 100%;
+    height: auto;
     border-radius: 24px;
+  }
+
+  .hero__visual picture {
+    width: 100%;
+    height: auto;
   }
 
   .floating-chip {
