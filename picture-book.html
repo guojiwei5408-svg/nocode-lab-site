@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>小小绘本机｜不会代码实验室</title>
+  <meta name="description" content="小小绘本机：说一句孩子的小事，生成一本 4 页睡前小绘本。" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="tool-page">
+  <canvas id="signalCanvas" aria-hidden="true"></canvas>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="主导航">
+      <a class="nav__brand" href="index.html" aria-label="返回不会代码实验室首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img">
+            <path d="M9 3h6v2h-1v5.2l5.7 8.6A1.4 1.4 0 0 1 18.5 21h-13a1.4 1.4 0 0 1-1.2-2.2L10 10.2V5H9V3Zm3 8-5.2 8h10.4L12 11Zm-2 4h4l1.3 2H8.7L10 15Z"/>
+          </svg>
+        </span>
+        不会代码实验室
+      </a>
+      <ul class="nav__links tool-nav">
+        <li><a href="index.html">首页</a></li>
+        <li><a href="picture-book.html" class="is-active">小小绘本机</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="picture-book-app">
+    <section class="tool-hero">
+      <div class="tool-copy">
+        <p class="eyebrow">WORK 002 · MVP</p>
+        <h1>小小绘本机</h1>
+        <p class="tool-subtitle">说一句孩子的小事，生成一本 4 页睡前小绘本。</p>
+        <p class="tool-note">输入一个小想法，生成一本 4 页小绘本。内容仅供亲子阅读参考。请不要输入孩子真实姓名、住址、学校、电话等隐私信息。</p>
+      </div>
+
+      <form id="bookForm" class="book-form" novalidate>
+        <label>
+          <span>故事想法</span>
+          <textarea id="storyIdea" name="storyIdea" rows="5" maxlength="200" required placeholder="不爱刷牙的小恐龙，最后学会认真刷牙"></textarea>
+          <small><b id="ideaCount">0</b> / 200 字</small>
+        </label>
+
+        <label>
+          <span>孩子昵称</span>
+          <input id="childName" name="childName" maxlength="12" required placeholder="朵朵" />
+        </label>
+
+        <label>
+          <span>画风</span>
+          <select id="artStyle" name="artStyle" required>
+            <option value="温馨水彩">温馨水彩</option>
+            <option value="卡通扁平">卡通扁平</option>
+            <option value="童趣手绘">童趣手绘</option>
+          </select>
+        </label>
+
+        <p class="privacy-tip">请只输入昵称或小名，不要输入孩子真实姓名、住址、学校、电话等隐私信息。</p>
+
+        <button id="generateBtn" class="btn btn-primary" type="submit">
+          <span>生成小绘本</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h10a4 4 0 0 1 4 4v12H8a3 3 0 0 0-3-3V4Zm2 2v8.8c.3-.1.7-.1 1-.1h9V8a2 2 0 0 0-2-2H7Zm1 13h13v2H8a5 5 0 0 1-5-5V4h2v12a3 3 0 0 0 3 3Z"/></svg>
+        </button>
+      </form>
+    </section>
+
+    <section id="resultPanel" class="result-panel" hidden>
+      <div class="result-head">
+        <div>
+          <p class="eyebrow">PREVIEW</p>
+          <h2 id="bookTitle">4 页小绘本</h2>
+          <p id="bookMeta">图片在上，文字在下。可以翻页预览，也可以下载 PDF。</p>
+        </div>
+        <button id="downloadPdfBtn" class="btn btn-secondary" type="button">下载 PDF</button>
+      </div>
+
+      <article class="book-preview" aria-live="polite">
+        <div class="book-page">
+          <img id="pageImage" alt="绘本插画预览" />
+          <p id="pageText"></p>
+        </div>
+        <div class="page-controls">
+          <button id="prevPageBtn" class="btn btn-secondary" type="button">上一页</button>
+          <span id="pageIndicator">1 / 4</span>
+          <button id="nextPageBtn" class="btn btn-secondary" type="button">下一页</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="picture-book.js"></script>
+</body>
+</html>
