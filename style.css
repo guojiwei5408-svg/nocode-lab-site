@@ -346,10 +346,17 @@ h3 {
   z-index: -1;
 }
 
-.hero__visual img {
+.hero__visual picture {
+  display: block;
   width: min(820px, 100%);
   max-width: 100%;
   justify-self: end;
+}
+
+.hero__visual img {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   border-radius: 36px;
   box-shadow: var(--shadow);
   transform:

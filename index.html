@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>不会代码实验室</title>
   <meta name="description" content="不会代码实验室：不会代码，也能用 AI 做点真东西。" />
-  <link rel="preload" as="image" href="assets/hero-workspace.png" />
+  <link rel="preload" as="image" href="assets/hero-workspace.webp" imagesrcset="assets/hero-workspace-mobile.webp 760w, assets/hero-workspace.webp 1280w" imagesizes="(max-width: 720px) 100vw, 56vw" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -52,7 +52,11 @@
       </div>
 
       <div class="hero__visual reveal" aria-label="AI 创作者工作台主视觉">
-        <img src="assets/hero-workspace.png" alt="浅色 3D 创作者工作台，笔记本电脑周围悬浮着 AI 工作流界面" />
+        <picture>
+          <source srcset="assets/hero-workspace-mobile.webp" media="(max-width: 720px)" type="image/webp" />
+          <source srcset="assets/hero-workspace.webp" type="image/webp" />
+          <img src="assets/hero-workspace.png" width="1280" height="720" alt="浅色 3D 创作者工作台，笔记本电脑周围悬浮着 AI 工作流界面" />
+        </picture>
         <div class="floating-chip chip-a">AI 小工具</div>
         <div class="floating-chip chip-b">网页实验</div>
         <div class="floating-chip chip-c">内容工作流</div>
